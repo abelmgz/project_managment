@@ -1,0 +1,37 @@
+<!-- templates/partials/sidebar.html -->
+<nav id="sidebar">
+    <div class="p-3 d-flex align-items-center border-bottom" style="background-color: rgba(0,0,0,0.02);">
+        <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 1.1rem;">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div>
+            <div class="fw-bold text-dark lh-sm" style="font-size: 0.88rem;">IT Network & Systems</div>
+            <small class="text-muted" style="font-size: 0.75rem;">Proyecto de Software Ágil</small>
+        </div>
+    </div>
+    
+    <div class="sidebar-menu-scroll flex-grow-1 py-2">
+        <div class="sidebar-category">PLANIFICACIÓN</div>
+        <ul class="list-unstyled mb-3">
+            <li><a href="/" class="sidebar-link {% if request.url.path == '/' %}active{% endif %}"><i class="fas fa-chart-pie sidebar-icon"></i> Resumen & Métricas</a></li>
+            <li><a href="/kanban" class="sidebar-link {% if request.url.path == '/kanban' %}active{% endif %}"><i class="fas fa-columns sidebar-icon"></i> Tablero Kanban</a></li>
+            <li><a href="/incidencias" class="sidebar-link {% if request.url.path == '/incidencias' %}active{% endif %}"><i class="fas fa-list-check sidebar-icon"></i> Lista de Incidencias</a></li>
+            <li><a href="/calendario" class="sidebar-link {% if request.url.path == '/calendario' %}active{% endif %}"><i class="fas fa-calendar-alt sidebar-icon"></i> Calendario de Hitos</a></li>
+            <li><a href="/weekly" class="sidebar-link {% if request.url.path == '/weekly' %}active{% endif %}"><i class="fas fa-history sidebar-icon"></i> Weekly Logs & Avance</a></li>
+        </ul>
+
+        <div class="sidebar-category">DOCUMENTACIÓN</div>
+        <ul class="list-unstyled">
+            <li><a href="/canvas" class="sidebar-link {% if request.url.path == '/canvas' %}active{% endif %}"><i class="fas fa-book-open sidebar-icon"></i> Confluence Canvas</a></li>
+        </ul>
+    </div>
+
+    <div class="p-3 border-top bg-white">
+        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">CAMBIAR PROYECTO</label>
+        <select class="form-select form-select-sm border-2 fw-medium text-dark" style="font-size: 0.82rem; border-color: #dfe1e6;">
+            <option>IT Network & Systems (DANA)</option>
+            <option>Control de Inventario & Dispositivos</option>
+            <option>Gestión de Tareas Personales</option>
+        </select>
+    </div>
+</nav>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="projects.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="4730"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="comentarios" custom_title="0" dock_id="1" table="4,11:maincomentarios"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011e00ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">-- ===========================================================================
+-- ESQUEMA DE BASE DE DATOS EN SQLITE PARA ADMINISTRACIÓN DE PROYECTOS
+-- VERSÍON AVANZADA: CON HISTORIAL, CALENDARIZACIÓN Y REPORTES DE CARGA
+-- ===========================================================================
+
+-- Habilitar el soporte de llaves foráneas en la sesión de SQLite
+PRAGMA foreign_keys = ON;
+
+-- ===========================================================================
+-- 1. TABLAS PRINCIPALES
+-- ===========================================================================
+
+-- TABLA DE USUARIOS
+CREATE TABLE usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    contrasena TEXT NOT NULL, 
+    rol TEXT DEFAULT 'Miembro' CHECK (rol IN ('Administrador', 'Líder de Proyecto', 'Miembro', 'Cliente')),
+    fecha_registro TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TABLA DE PROYECTOS
+CREATE TABLE proyectos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL,
+    descripcion TEXT,
+    fecha_inicio TEXT NOT NULL, -- Formato ISO8601: YYYY-MM-DD
+    fecha_entrega_prevista TEXT, -- Formato ISO8601: YYYY-MM-DD
+    estado TEXT DEFAULT 'Planificación' CHECK (estado IN ('Planificación', 'En Progreso', 'En Pausa', 'Completado', 'Cancelado')),
+    creado_por INTEGER,
+    fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+-- TABLA INTERMEDIA: MIEMBROS DE PROYECTO
+CREATE TABLE miembros_proyecto (
+    proyecto_id INTEGER,
+    usuario_id INTEGER,
+    rol_en_proyecto TEXT DEFAULT 'Colaborador' CHECK (rol_en_proyecto IN ('Responsable', 'Colaborador', 'Observador')),
+    fecha_asignacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (proyecto_id, usuario_id),
+    FOREIGN KEY (proyecto_id) REFERENCES proyectos(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- TABLA DE TAREAS
+CREATE TABLE tareas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    proyecto_id INTEGER NOT NULL,
+    titulo TEXT NOT NULL,
+    descripcion TEXT,
+    estado TEXT DEFAULT 'Por Hacer' CHECK (estado IN ('Por Hacer', 'En Progreso', 'En Revisión', 'Completado')),
+    prioridad TEXT DEFAULT 'Media' CHECK (prioridad IN ('Baja', 'Media', 'Alta', 'Crítica')),
+    asignado_a INTEGER,
+    fecha_limite TEXT, -- Formato ISO8601: YYYY-MM-DD para facilitar orden y filtros
+    fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (proyecto_id) REFERENCES proyectos(id) ON DELETE CASCADE,
+    FOREIGN KEY (asignado_a) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+-- TABLA DE COMENTARIOS
+CREATE TABLE comentarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tarea_id INTEGER NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    contenido TEXT NOT NULL,
+    fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- TABLA DE ETIQUETAS (TAGS)
+CREATE TABLE etiquetas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL UNIQUE,
+    color_hex TEXT DEFAULT '#3498db'
+);
+
+-- TABLA INTERMEDIA: TAREAS_ETIQUETAS
+CREATE TABLE tareas_etiquetas (
+    tarea_id INTEGER,
+    etiqueta_id INTEGER,
+    PRIMARY KEY (tarea_id, etiqueta_id),
+    FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE,
+    FOREIGN KEY (etiqueta_id) REFERENCES etiquetas(id) ON DELETE CASCADE
+);
+
+-- ===========================================================================
+-- 2. SISTEMA DE HISTORIAL Y AUDITORÍA (TRACKING)
+-- ===========================================================================
+
+-- TABLA DE HISTORIAL DE TAREAS
+-- Almacena de forma cronológica los cambios críticos en las tareas para auditoría o líneas de tiempo.
+CREATE TABLE historial_tareas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tarea_id INTEGER NOT NULL,
+    campo_modificado TEXT NOT NULL, -- Ej. 'estado', 'asignado_a', 'prioridad'
+    valor_anterior TEXT,
+    valor_nuevo TEXT,
+    fecha_cambio TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE
+);
+
+-- ===========================================================================
+-- 3. DISPARADORES (TRIGGERS) PARA AUTOMATIZACIÓN E HISTORIAL
+-- ===========================================================================
+
+-- Trigger para mantener actualizada la columna 'fecha_actualizacion' en tareas
+CREATE TRIGGER trg_tareas_fecha_actualizacion
+AFTER UPDATE ON tareas
+FOR EACH ROW
+BEGIN
+    UPDATE tareas 
+    SET fecha_actualizacion = CURRENT_TIMESTAMP 
+    WHERE id = OLD.id;
+END;
+
+-- Trigger de Historial: Detectar y registrar cambios de ESTADO en las tareas
+CREATE TRIGGER trg_tareas_historial_estado
+AFTER UPDATE OF estado ON tareas
+FOR EACH ROW
+WHEN OLD.estado &lt;&gt; NEW.estado
+BEGIN
+    INSERT INTO historial_tareas (tarea_id, campo_modificado, valor_anterior, valor_nuevo)
+    VALUES (OLD.id, 'estado', OLD.estado, NEW.estado);
+END;
+
+-- Trigger de Historial: Detectar y registrar cambios de ASIGNACIÓN en las tareas
+CREATE TRIGGER trg_tareas_historial_asignado
+AFTER UPDATE OF asignado_a ON tareas
+FOR EACH ROW
+WHEN IFNULL(OLD.asignado_a, '') &lt;&gt; IFNULL(NEW.asignado_a, '')
+BEGIN
+    INSERT INTO historial_tareas (tarea_id, campo_modificado, valor_anterior, valor_nuevo)
+    VALUES (
+        OLD.id, 
+        'asignado_a', 
+        (SELECT nombre FROM usuarios WHERE id = OLD.asignado_a),
+        (SELECT nombre FROM usuarios WHERE id = NEW.asignado_a)
+    );
+END;
+
+-- ===========================================================================
+-- 4. VISTAS (VIEWS) PARA VISUALIZACIÓN, CALENDARIO Y REPORTES
+-- ===========================================================================
+
+-- A. VISTA PARA VISUALIZACIÓN AGRUPADA (Proyectos -&gt; Tareas)
+-- Consolida la información necesaria para pintar un tablero o lista organizada por proyectos.
+CREATE VIEW vista_proyectos_tareas AS
+SELECT 
+    p.id AS proyecto_id,
+    p.nombre AS proyecto_nombre,
+    p.estado AS proyecto_estado,
+    t.id AS tarea_id,
+    t.titulo AS tarea_titulo,
+    t.estado AS tarea_estado,
+    t.prioridad AS tarea_prioridad,
+    u.nombre AS asignado_a_nombre,
+    t.fecha_limite
+FROM proyectos p
+LEFT JOIN tareas t ON p.id = t.proyecto_id
+LEFT JOIN usuarios u ON t.asignado_a = u.id
+ORDER BY p.nombre ASC, t.fecha_limite ASC;
+
+-- B. VISTA PARA CALENDARIZACIÓN
+-- Extrae únicamente tareas que tienen una fecha límite establecida para la interfaz del calendario.
+CREATE VIEW vista_calendario_tareas AS
+SELECT 
+    t.id AS tarea_id,
+    t.titulo AS tarea_titulo,
+    t.fecha_limite AS fecha_evento, -- Formato YYYY-MM-DD mapeable a calendarios
+    t.estado AS tarea_estado,
+    t.prioridad AS tarea_prioridad,
+    p.nombre AS proyecto_nombre
+FROM tareas t
+JOIN proyectos p ON t.proyecto_id = p.id
+WHERE t.fecha_limite IS NOT NULL AND t.fecha_limite &lt;&gt; ''
+ORDER BY t.fecha_limite ASC;
+
+-- C. VISTA PARA REPORTE DE CARGA DE TRABAJO POR USUARIO
+-- Muestra de forma cuantitativa cuántas tareas tiene asignadas cada usuario en sus diferentes estados.
+CREATE VIEW vista_reporte_carga_trabajo AS
+SELECT 
+    u.id AS usuario_id,
+    u.nombre AS usuario_nombre,
+    u.rol AS usuario_rol,
+    COUNT(t.id) AS total_tareas_asignadas,
+    SUM(CASE WHEN t.estado = 'Por Hacer' THEN 1 ELSE 0 END) AS tareas_por_hacer,
+    SUM(CASE WHEN t.estado = 'En Progreso' THEN 1 ELSE 0 END) AS tareas_en_progreso,
+    SUM(CASE WHEN t.estado = 'En Revisión' THEN 1 ELSE 0 END) AS tareas_en_revision,
+    SUM(CASE WHEN t.estado = 'Completado' THEN 1 ELSE 0 END) AS tareas_completadas,
+    -- Indicador numérico de tareas activas (carga real)
+    SUM(CASE WHEN t.estado IN ('Por Hacer', 'En Progreso', 'En Revisión') THEN 1 ELSE 0 END) AS carga_activa_pendiente
+FROM usuarios u
+LEFT JOIN tareas t ON u.id = t.asignado_a
+GROUP BY u.id, u.nombre, u.rol
+ORDER BY carga_activa_pendiente DESC;
+
+-- ===========================================================================
+-- ÍNDICES ADICIONALES PARA OPTIMIZAR EL RENDIMIENTO DE LAS VISTAS
+-- ===========================================================================
+CREATE INDEX idx_tareas_fecha_limite ON tareas(fecha_limite);
+CREATE INDEX idx_historial_tarea_id ON historial_tareas(tarea_id);</sql><current_tab id="0"/></tab_sql></sqlb_project>

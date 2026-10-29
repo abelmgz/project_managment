@@ -1,0 +1,49 @@
+<!-- templates/layouts/base.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Jira Software{% endblock %}</title>
+    <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/layouts/base.css">
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+    <div class="jira-navbar">
+        <div class="d-flex align-items-center">
+            <div class="jira-grid-icon"><i class="fas fa-th"></i></div>
+            <div class="jira-logo"><i class="fab fa-jira"></i> Jira Software</div>
+            <div class="jira-nav-item">Proyectos <i class="fas fa-chevron-down ms-1"></i></div>
+            <div class="jira-nav-item">Filtros <i class="fas fa-chevron-down ms-1"></i></div>
+            <div class="jira-nav-item">Espacios Docs <i class="fas fa-chevron-down ms-1"></i></div>
+            <button class="jira-btn-create" data-bs-toggle="modal" data-bs-target="#crearIncidenciaModal"><i class="fas fa-plus me-1"></i> Crear Tarea</button>
+        </div>
+        <div class="d-flex align-items-center ms-auto">
+            <div class="jira-search-container">
+                <i class="fas fa-search jira-search-icon"></i>
+                <input type="text" class="jira-search-input" placeholder="Buscar incidencias...">
+            </div>
+            <div class="jira-top-icon"><i class="far fa-bell"></i></div>
+            <div class="jira-top-icon"><i class="fas fa-cog"></i></div>
+            <div class="jira-avatar-circle">AM</div>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        {% include "partials/sidebar.html" %}
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% include "partials/modal_incidencia.html" %}
+    {% include "partials/modal_proyecto.html" %}
+
+    <script src="/static/vendor/chartjs/chart.umd.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/layouts/base.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

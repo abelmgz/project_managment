@@ -1,0 +1,11 @@
+/* static/css/pages/calendario.css */
+.col-jira-7 { width: 14.285%; flex: 0 0 14.285%; border-right: 1px solid #e2e8f0; padding: 4px; }
+.col-jira-7:last-child { border-right: none; }
+.calendar-day-box { min-height: 110px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; position: relative; padding: 6px; background-color: #ffffff; }
+.calendar-day-box:nth-child(7n) { border-right: none; }
+.day-number-text { font-size: 0.82rem; font-weight: 600; color: #42526e; margin-bottom: 4px; display: block; }
+.day-box-today { border: 2px solid #0052cc !important; z-index: 10; box-shadow: inset 0 0 4px rgba(0,82,204,0.1); }
+.calendar-badge-event { display: block; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; text-decoration: none; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.event-blue-soft { background-color: #deebff; color: #0052cc; }
+.event-blue-dark { background-color: #0052cc; color: #ffffff; }
+.event-green-soft { background-color: #e3fcef; color: #006644; }

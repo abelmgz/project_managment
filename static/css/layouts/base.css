@@ -1,0 +1,167 @@
+/* static/css/layouts/base.css */
+:root {
+    --sidebar-bg: #f4f5f7;
+    --navbar-bg: #0747a6;
+    --text-main: #172b4d;
+    --text-sidebar: #42526e;
+    --blue-active: #0052cc;
+    --blue-bg-active: #deebff;
+}
+body {
+    background-color: #ffffff;
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+}
+.jira-navbar {
+    height: 56px;
+    background-color: var(--navbar-bg);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+}
+.jira-grid-icon {
+    font-size: 1.25rem;
+    margin-right: 16px;
+    opacity: 0.8;
+    cursor: pointer;
+}
+.jira-logo {
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+}
+.jira-logo i { margin-right: 6px; }
+.jira-nav-item {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0 12px;
+    cursor: pointer;
+    opacity: 0.9;
+}
+.jira-nav-item:hover { opacity: 1; }
+.jira-btn-create {
+    background-color: #0052cc;
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-left: 12px;
+}
+.jira-search-container {
+    position: relative;
+    margin-right: 16px;
+}
+.jira-search-input {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: #ffffff;
+    padding: 6px 12px 6px 32px;
+    font-size: 0.85rem;
+    width: 220px;
+    transition: all 0.2s;
+}
+.jira-search-input::placeholder { color: rgba(255,255,255,0.7); }
+.jira-search-input:focus {
+    background-color: #ffffff;
+    color: #172b4d;
+    outline: none;
+    width: 280px;
+}
+.jira-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: rgba(255,255,255,0.7);
+}
+.jira-search-input:focus + .jira-search-icon { color: #42526e; }
+.jira-top-icon {
+    font-size: 1.2rem;
+    margin-right: 16px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+.jira-avatar-circle {
+    width: 32px;
+    height: 32px;
+    background-color: #ff5630;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+.wrapper {
+    display: flex;
+    width: 100%;
+    margin-top: 56px;
+}
+#sidebar {
+    min-width: 240px;
+    max-width: 240px;
+    background-color: var(--sidebar-bg);
+    min-height: calc(100vh - 56px);
+    border-right: 1px solid #dfe1e6;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+#content {
+    flex: 1;
+    margin-left: 240px;
+    padding: 24px;
+    min-width: 0;
+    background-color: #ffffff;
+}
+/* Añadir este bloque en static/css/layouts/base.css para soportar el sidebar */
+.sidebar-category {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #6b778c;
+    padding: 12px 24px 4px 24px;
+    letter-spacing: 0.5px;
+}
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 24px;
+    color: var(--text-sidebar);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+.sidebar-link:hover {
+    background-color: #ebecf0;
+    color: var(--text-main);
+}
+.sidebar-link.active {
+    background-color: var(--blue-bg-active);
+    color: var(--blue-active);
+    font-weight: 600;
+}
+.sidebar-icon {
+    width: 20px;
+    margin-right: 12px;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #5e6c84;
+}
+.sidebar-link.active .sidebar-icon {
+    color: var(--blue-active);
+}

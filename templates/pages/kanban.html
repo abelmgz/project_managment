@@ -1,0 +1,72 @@
+<!-- templates/pages/kanban.html -->
+{% extends "layouts/base.html" %}
+{% block title %}Tablero Kanban - Jira Software{% endblock %}
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/kanban.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">Tablero Kanban</h2>
+            <p class="text-muted m-0" style="font-size: 0.85rem;">Arrastra y suelta las tarjetas para actualizar el estado inmediatamente</p>
+        </div>
+        <div class="d-flex align-items-center gap-1">
+            <small class="text-muted fw-bold me-2" style="font-size: 0.72rem;">Filtro rápido:</small>
+            <button class="btn btn-sm btn-light border fw-semibold px-3 rounded-5" style="font-size:0.8rem;">Todos</button>
+            <button class="btn btn-sm btn-outline-primary fw-semibold px-3 rounded-5" style="font-size:0.8rem;">Mis Tareas</button>
+        </div>
+    </div>
+
+    <div class="kanban-board-row mt-4">
+        <!-- Columna 1: POR HACER -->
+        <div class="kanban-column" id="col-Por-Hacer">
+            <div class="kanban-column-header">
+                <span>POR HACER</span>
+                <span class="kanban-badge-count" id="count-Por-Hacer">0</span>
+            </div>
+            <div class="kanban-cards-container" ondragover="allowDrop(event)" ondrop="dropCard(event, 'Por-Hacer')">
+                <!-- Dinámico -->
+            </div>
+        </div>
+
+        <!-- Columna 2: EN CURSO -->
+        <div class="kanban-column" id="col-En-Curso">
+            <div class="kanban-column-header">
+                <span>EN CURSO</span>
+                <span class="kanban-badge-count" id="count-En-Curso">0</span>
+            </div>
+            <div class="kanban-cards-container" ondragover="allowDrop(event)" ondrop="dropCard(event, 'En-Curso')">
+                <!-- Dinámico -->
+            </div>
+        </div>
+
+        <!-- Columna 3: EN REVISIÓN (Punteada) -->
+        <div class="kanban-column column-revision" id="col-Revision">
+            <div class="kanban-column-header">
+                <span>EN REVISIÓN</span>
+                <span class="kanban-badge-count" id="count-Revision">0</span>
+            </div>
+            <div class="kanban-cards-container" ondragover="allowDrop(event)" ondrop="dropCard(event, 'Revision')">
+                <!-- Dinámico -->
+            </div>
+        </div>
+
+        <!-- Columna 4: FINALIZADO (Verde + Punteada) -->
+        <div class="kanban-column column-finalizado" id="col-Finalizado">
+            <div class="kanban-column-header">
+                <span class="text-success-dark">FINALIZADO</span>
+                <span class="kanban-badge-count bg-success-circle" id="count-Finalizado">0</span>
+            </div>
+            <div class="kanban-cards-container container-green" ondragover="allowDrop(event)" ondrop="dropCard(event, 'Finalizado')">
+                <!-- Dinámico -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/kanban.js"></script>
+{% endblock %}

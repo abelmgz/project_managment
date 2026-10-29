@@ -1,0 +1,40 @@
+<!-- templates/pages/canvas.html -->
+{% extends "layouts/base.html" %}
+{% block title %}Confluence - Jira Software{% endblock %}
+{% block extra_styles %}
+<style>
+    .confluence-editor { border: 1px solid #dfe1e6; border-radius: 4px; background-color: #ffffff; padding: 24px; min-height: 400px; }
+    .confluence-sidebar-title { font-size: 0.68rem; font-weight: 700; color: #6b778c; letter-spacing: 0.5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-3">
+        <div class="col-md-3 border-end pe-3" style="min-height: calc(100vh - 120px);">
+            <div class="confluence-sidebar-title mb-2">ESPACIOS / INFRAESTRUCTURA IT</div>
+            <ul class="list-unstyled fw-medium text-dark" style="font-size: 0.85rem;">
+                <li class="py-1 px-2 bg-light rounded text-primary fw-bold"><i class="fas fa-file-alt me-2 text-primary"></i> Topología de Red & Procedimientos</li>
+                <li class="py-1 px-2 text-muted"><i class="fas fa-file-alt me-2"></i> Normativa de Mantenimiento</li>
+                <li class="py-1 px-2 text-muted"><i class="fas fa-file-alt me-2"></i> Política de Respaldos Cisco</li>
+            </ul>
+        </div>
+        <div class="col-md-9 ps-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem;">Topología de Red & Procedimientos de Operación</h2>
+                <button class="btn btn-success btn-sm px-3 fw-semibold"><i class="fas fa-save me-1"></i> Guardar Cambios</button>
+            </div>
+            <div class="confluence-editor text-dark shadow-sm lh-base" style="font-size: 0.92rem;">
+                <h5 class="fw-bold mb-2">Normativa de Mantenimiento Preventivo</h5>
+                <p class="text-secondary">Toda modificación a los gateways o switches centrales en Escobedo requiere ventana de mantenimiento autorizada después de las 18:00 hrs o durante fines de semana.</p>
+                <h5 class="fw-bold mt-4 mb-2">Subredes Principales</h5>
+                <ul>
+                    <li><strong>VLAN 10 (Gestión & Servidores):</strong> 192.168.10.0/24</li>
+                    <li><strong>VLAN 20 (Dispositivos Producción):</strong> 192.168.20.0/23</li>
+                    <li><strong>VLAN 30 (Oficinas Administrativas):</strong> 192.168.30.0/24</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

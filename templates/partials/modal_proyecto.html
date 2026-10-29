@@ -1,0 +1,27 @@
+<!-- templates/partials/modal_proyecto.html -->
+<div class="modal fade" id="crearProyectoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow" style="border-radius: 4px;">
+            <form action="/api/proyectos" method="POST">
+                <div class="modal-header bg-light py-2 px-3 border-0">
+                    <h6 class="modal-title fw-bold text-dark"><i class="fas fa-folder-plus me-1 text-success"></i> Alta de Nuevo Proyecto</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
+                </div>
+                <div class="modal-body p-3" style="font-size: 0.85rem;">
+                    <div class="mb-2">
+                        <label class="form-label fw-bold text-secondary">Nombre del Proyecto</label>
+                        <input type="text" name="nombre" class="form-control form-control-sm" required placeholder="Ej: Red Corporativa GDL">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold text-secondary">Clave / Key (Prefijo)</label>
+                        <input type="text" name="clave" class="form-control form-control-sm" required placeholder="Ej: GDL" maxlength="4">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 py-2">
+                    <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-sm btn-success px-3 fw-bold">Crear Proyecto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

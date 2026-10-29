@@ -1,0 +1,68 @@
+<!-- templates/pages/weekly.html -->
+{% extends "layouts/base.html" %}
+{% block title %}Weekly Logs - Jira Software{% endblock %}
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/weekly.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">Weekly Logs & Histórico de Esfuerzo</h2>
+        <p class="text-muted m-0" style="font-size: 0.85rem;">Bitácora de tiempos y registros de trabajo semanal colapsable</p>
+    </div>
+
+    <!-- Bloque de Acordeón 1: Lunes 19 (Expandido por defecto) -->
+    <div class="weekly-day-container mb-3 border">
+        <div class="weekly-header-row p-3 d-flex align-items-center justify-content-between" onclick="toggleWeeklySection(this)">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-chevron-down text-secondary me-3 weekly-arrow-toggle"></i>
+                <span class="fw-bold text-dark me-2" style="font-size: 0.92rem;">Lunes, 19 de Octubre 2026</span>
+                <span class="badge badge-weekly-hours px-2 py-1 font-monospace">6.5 Horas registradas</span>
+            </div>
+            <div class="text-success fw-semibold" style="font-size: 0.85rem;"><i class="fas fa-check-circle me-1"></i>100% de meta diaria</div>
+        </div>
+        <div class="weekly-content-body px-4 pb-3 border-top bg-white">
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                    <span class="fw-bold text-primary me-2 font-monospace" style="font-size: 0.85rem;">NET-101</span>
+                    <span class="text-dark fw-medium" style="font-size: 0.85rem;">Diagnóstico preventivo enlace secundario Escobedo</span>
+                </div>
+                <span class="text-secondary fw-semibold font-monospace" style="font-size: 0.85rem;">3.5h</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <span class="fw-bold text-primary me-2 font-monospace" style="font-size: 0.85rem;">NET-104</span>
+                    <span class="text-dark fw-medium" style="font-size: 0.85rem;">Verificación de DHCP y rangos para dispositivos móviles</span>
+                </div>
+                <span class="text-secondary fw-semibold font-monospace" style="font-size: 0.85rem;">3.0h</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bloque de Acordeón 2: Viernes 16 (Colapsado) -->
+    <div class="weekly-day-container mb-3 border collapsed">
+        <div class="weekly-header-row p-3 d-flex align-items-center justify-content-between" onclick="toggleWeeklySection(this)">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-chevron-right text-secondary me-3 weekly-arrow-toggle"></i>
+                <span class="fw-bold text-dark me-2" style="font-size: 0.92rem;">Viernes, 16 de Octubre 2026</span>
+                <span class="badge badge-weekly-hours px-2 py-1 font-monospace" style="background-color: #e3e4e8; color: #42526e;">8.0 Horas registradas</span>
+            </div>
+            <div class="text-muted fw-semibold" style="font-size: 0.85rem;"><i class="fas fa-check-circle me-1"></i>Completado</div>
+        </div>
+        <div class="weekly-content-body px-4 pb-3 border-top bg-white d-none">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <span class="fw-bold text-primary me-2 font-monospace" style="font-size: 0.85rem;">NET-098</span>
+                    <span class="text-dark fw-medium" style="font-size: 0.85rem;">Levantamiento físico de topología y etiquetado patch panel</span>
+                </div>
+                <span class="text-secondary fw-semibold font-monospace" style="font-size: 0.85rem;">8.0h</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/weekly.js"></script>
+{% endblock %}

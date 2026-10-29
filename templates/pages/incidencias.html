@@ -1,0 +1,54 @@
+<!-- templates/pages/incidencias.html -->
+{% extends "layouts/base.html" %}
+
+{% block title %}Lista de Incidencias - Jira Software{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/incidencias.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+    <!-- Encabezado de la página -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold text-dark mb-1">Lista de Incidencias</h1>
+            <p class="text-muted mb-0">Vista jerárquica tabular con estados, prioridades y asignaciones del proyecto.</p>
+        </div>
+        <div>
+            <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#crearIncidenciaModal">
+                <i class="fas fa-plus"></i>
+                <span>Crear Tarea</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor de la Tabla Estilizada de Jira -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaIncidencias">
+                    <thead class="table-light text-secondary fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 120px;">Clave</th>
+                            <th class="py-3">Resumen / Título</th>
+                            <th class="py-3" style="width: 160px;">Componente / Red</th>
+                            <th class="py-3" style="width: 130px;">Prioridad</th>
+                            <th class="py-3" style="width: 140px;">Estado</th>
+                            <th class="py-3" style="width: 180px;">Asignado</th>
+                            <th class="pe-4 py-3 text-end" style="width: 100px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0" id="contenedorListaIncidencias" style="font-size: 0.87rem;">
+                        <!-- Cargado dinámicamente mediante fetch en incidencias.js -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/incidencias.js"></script>
+{% endblock %}

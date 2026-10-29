@@ -1,0 +1,35 @@
+<!-- templates/partials/modal_incidencia.html -->
+<div class="modal fade" id="crearIncidenciaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 4px;">
+            <div class="modal-header bg-light py-2 px-3 border-0">
+                <h6 class="modal-title fw-bold text-dark"><i class="fas fa-plus-circle me-1 text-primary"></i> Crear Nueva Incidencia</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
+            </div>
+            <div class="modal-body p-3" style="font-size: 0.85rem;">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Título / Resumen *</label>
+                    <input type="text" class="form-control form-control-sm" required placeholder="Ej: Migración de Core Switch">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Descripción</label>
+                    <textarea class="form-control form-control-sm" rows="3" placeholder="Detalle técnico de la incidencia..."></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Prioridad</label>
+                        <select class="form-select form-select-sm"><option>Alta</option><option selected>Media</option><option>Baja</option></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary">Etiqueta</label>
+                        <input type="text" class="form-control form-control-sm" value="Networking">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 py-2">
+                <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-primary px-3 fw-bold" data-bs-dismiss="modal">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>

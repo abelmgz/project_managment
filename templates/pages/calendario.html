@@ -1,0 +1,38 @@
+<!-- templates/pages/calendario.html -->
+{% extends "layouts/base.html" %}
+{% block title %}Calendario de Hitos - Jira Software{% endblock %}
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/calendario.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">Calendario de Hitos y Entregas</h2>
+            <p class="text-muted m-0" style="font-size: 0.85rem;">Cronograma de mantenimientos, configuraciones de red y despliegues</p>
+        </div>
+        <div class="fw-bold text-dark" style="font-size: 1.1rem; letter-spacing: -0.3px;" id="calendarioMesTitulo">Octubre 2026</div>
+    </div>
+
+    <div class="card shadow-sm border p-0 rounded-3">
+        <!-- Cabecera de 7 días horizontales de tu captura -->
+        <div class="row g-0 text-center border-bottom bg-light py-2 fw-bold text-secondary" style="font-size: 0.78rem;">
+            <div class="col-jira-7">Lun</div>
+            <div class="col-jira-7">Mar</div>
+            <div class="col-jira-7">Mié</div>
+            <div class="col-jira-7">Jue</div>
+            <div class="col-jira-7">Vie</div>
+            <div class="col-jira-7">Sáb</div>
+            <div class="col-jira-7">Dom</div>
+        </div>
+        <div class="row g-0" id="cuadradaCalendarioMatriz">
+            <!-- Bloques inyectados de forma elástica -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/calendario.js"></script>
+{% endblock %}

@@ -1,0 +1,55 @@
+/* static/css/pages/dashboard.css */
+.metric-card {
+    background-color: #ffffff;
+    border-radius: 4px;
+    border-color: #dfe1e6 !important;
+    padding: 16px;
+}
+.metric-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #6b778c;
+    display: block;
+    margin-bottom: 4px;
+}
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #172b4d;
+    margin: 0;
+}
+.metric-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.1rem;
+}
+.bg-blue { background-color: #deebff; color: #0052cc; }
+.bg-amber { background-color: #fff0b3; color: #172b4d; }
+.bg-green { background-color: #e3fcef; color: #006644; }
+.bg-purple { background-color: #eae6ff; color: #5243aa; }
+.metric-footer {
+    font-size: 0.75rem;
+    color: #6b778c;
+    margin-top: 8px;
+}
+.style-leyenda {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #42526e;
+}
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.text-warning-custom { color: #ffab00 !important; }
+.text-success-custom { color: #36b37e !important; }
+.text-info-custom { color: #0052cc !important; }
+.btn-jira-action { background-color: #0052cc !important; border: none; font-size: 0.85rem; }
+.btn-jira-secondary { font-size: 0.85rem; border-color: #dfe1e6 !important; background-color: #ffffff; color: #42526e; }
