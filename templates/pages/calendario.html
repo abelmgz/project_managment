@@ -2,7 +2,7 @@
 {% extends "layouts/base.html" %}
 {% block title %}Calendario de Hitos - Jira Software{% endblock %}
 {% block extra_styles %}
-<link rel="stylesheet" href="/static/css/pages/calendario.css">
+<link rel="stylesheet" href="/static/css/pages/calendario.css?v=5">
 {% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
     </div>
 
     <div class="card shadow-sm border p-0 rounded-3">
-        <!-- Cabecera de 7 días horizontales de tu captura -->
+        <!-- Cabecera de 7 días horizontales -->
         <div class="row g-0 text-center border-bottom bg-light py-2 fw-bold text-secondary" style="font-size: 0.78rem;">
             <div class="col-jira-7">Lun</div>
             <div class="col-jira-7">Mar</div>
@@ -34,5 +34,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/pages/calendario.js"></script>
+<script src="/static/js/pages/calendario.js?v=5"></script>
 {% endblock %}

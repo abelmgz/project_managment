@@ -1,40 +1,260 @@
 <!-- templates/pages/canvas.html -->
 {% extends "layouts/base.html" %}
-{% block title %}Confluence - Jira Software{% endblock %}
+{% block title %}Confluence Canvas Automatizado - Jira Software{% endblock %}
+
 {% block extra_styles %}
-<style>
-    .confluence-editor { border: 1px solid #dfe1e6; border-radius: 4px; background-color: #ffffff; padding: 24px; min-height: 400px; }
-    .confluence-sidebar-title { font-size: 0.68rem; font-weight: 700; color: #6b778c; letter-spacing: 0.5px; }
-</style>
+<link rel="stylesheet" href="/static/css/pages/canvas.css?v=8">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid p-0">
-    <div class="row g-3">
-        <div class="col-md-3 border-end pe-3" style="min-height: calc(100vh - 120px);">
-            <div class="confluence-sidebar-title mb-2">ESPACIOS / INFRAESTRUCTURA IT</div>
-            <ul class="list-unstyled fw-medium text-dark" style="font-size: 0.85rem;">
-                <li class="py-1 px-2 bg-light rounded text-primary fw-bold"><i class="fas fa-file-alt me-2 text-primary"></i> Topología de Red & Procedimientos</li>
-                <li class="py-1 px-2 text-muted"><i class="fas fa-file-alt me-2"></i> Normativa de Mantenimiento</li>
-                <li class="py-1 px-2 text-muted"><i class="fas fa-file-alt me-2"></i> Política de Respaldos Cisco</li>
-            </ul>
-        </div>
-        <div class="col-md-9 ps-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem;">Topología de Red & Procedimientos de Operación</h2>
-                <button class="btn btn-success btn-sm px-3 fw-semibold"><i class="fas fa-save me-1"></i> Guardar Cambios</button>
+<div class="container-fluid p-0 confluence-layout">
+    <!-- Banner Superior de Automatización de Confluence Canvas -->
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                    <i class="fas fa-bolt me-1"></i> Confluence Automation Engine
+                </span>
+                <span class="text-secondary small" id="canvasSubtituloProyecto">
+                    Sincronizando documentación técnica, métricas de sprint e incidencias en tiempo real.
+                </span>
             </div>
-            <div class="confluence-editor text-dark shadow-sm lh-base" style="font-size: 0.92rem;">
-                <h5 class="fw-bold mb-2">Normativa de Mantenimiento Preventivo</h5>
-                <p class="text-secondary">Toda modificación a los gateways o switches centrales en Escobedo requiere ventana de mantenimiento autorizada después de las 18:00 hrs o durante fines de semana.</p>
-                <h5 class="fw-bold mt-4 mb-2">Subredes Principales</h5>
-                <ul>
-                    <li><strong>VLAN 10 (Gestión & Servidores):</strong> 192.168.10.0/24</li>
-                    <li><strong>VLAN 20 (Dispositivos Producción):</strong> 192.168.20.0/23</li>
-                    <li><strong>VLAN 30 (Oficinas Administrativas):</strong> 192.168.30.0/24</li>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm fw-semibold" id="btnAbrirGeneradorAuto">
+                    <i class="fas fa-magic me-1"></i> Autogenerar Documento desde Jira
+                </button>
+                <button type="button" class="btn btn-primary btn-sm fw-semibold" id="btnNuevaPaginaCanvas">
+                    <i class="fas fa-plus me-1"></i> Nueva Página
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Columna Izquierda: Árbol de Páginas y Automatizaciones Rápidas -->
+        <div class="col-lg-3">
+            <div class="confluence-sidebar shadow-sm">
+                <div class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="buscadorPaginasCanvas" class="form-control border-start-0" placeholder="Buscar página o runbook...">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="confluence-sidebar-title">PÁGINAS DEL ESPACIO</span>
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill" id="contadorPaginasCanvas">0</span>
+                </div>
+
+                <div id="arbolPaginasCanvas" class="mb-3" style="max-height: 430px; overflow-y: auto;">
+                    <!-- Renderizado dinámico por canvas.js -->
+                </div>
+
+                <hr class="my-3 text-muted">
+
+                <div class="confluence-sidebar-title mb-2">
+                    <i class="fas fa-robot me-1 text-primary"></i> GENERADORES 1-CLICK
+                </div>
+                <div class="d-grid gap-1">
+                    <button type="button" class="btn btn-light btn-sm text-start border small fw-medium py-1 px-2 btn-quick-autogen" data-tipo="reporte_ejecutivo">
+                        <i class="fas fa-chart-line text-primary me-1"></i> Reporte Ejecutivo de Sprint
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm text-start border small fw-medium py-1 px-2 btn-quick-autogen" data-tipo="bitacora_cambios">
+                        <i class="fas fa-history text-warning me-1"></i> Bitácora de Auditoría & Cambios
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm text-start border small fw-medium py-1 px-2 btn-quick-autogen" data-tipo="runbook_componentes">
+                        <i class="fas fa-microchip text-info me-1"></i> Runbook por Componente IT
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm text-start border small fw-medium py-1 px-2 btn-quick-autogen" data-tipo="matriz_carga_equipo">
+                        <i class="fas fa-users-cog text-success me-1"></i> Matriz Operativa del Equipo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Lienzo Editable + Macros en Vivo -->
+        <div class="col-lg-9">
+            <div class="confluence-workspace-card shadow-sm">
+                <!-- Cabecera del Documento -->
+                <div class="p-3 bg-white">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <select id="canvasCategoriaSelect" class="form-select form-select-sm fw-semibold text-secondary" style="width: auto; font-size: 0.76rem;">
+                                    <option value="Arquitectura & Red">Arquitectura & Red</option>
+                                    <option value="Procedimientos / Runbooks">Procedimientos / Runbooks</option>
+                                    <option value="Reportes Automáticos">Reportes Automáticos</option>
+                                    <option value="Actas & Post-Mortems">Actas & Post-Mortems</option>
+                                </select>
+                                <span class="badge bg-light text-secondary border" id="canvasVersionBadge">v1</span>
+                                <span class="small text-muted" id="canvasEstadoGuardado">
+                                    <i class="fas fa-check-circle text-success me-1"></i> Sincronizado
+                                </span>
+                            </div>
+                            <input type="text" id="canvasTituloInput" class="form-control form-control-lg border-0 fw-bold text-dark px-0 py-0 shadow-none" style="font-size: 1.45rem;" placeholder="Título de la página de Confluence...">
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm fw-semibold" id="btnSincronizarDocumento" title="Actualizar macros y datos del proyecto desde SQLite">
+                                <i class="fas fa-sync-alt me-1"></i> Sincronizar con Jira
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold" id="btnVerVersionesCanvas" title="Ver historial de versiones de esta página">
+                                <i class="fas fa-code-branch me-1"></i> Versiones
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold" id="btnExportarMarkdown" title="Exportar documento">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm px-3 fw-semibold" id="btnGuardarDocumentoCanvas">
+                                <i class="fas fa-save me-1"></i> Guardar Cambios
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm fw-semibold d-none" id="btnEliminarDocumentoCanvas" title="Eliminar página (Solo Owner)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center text-muted" style="font-size: 0.76rem;">
+                        <div>
+                            <i class="fas fa-user-edit me-1"></i> Última actualización por <strong id="canvasAutorActualizacion">-</strong> el <span id="canvasFechaActualizacion">-</span>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" id="switchAutoSyncCanvas" checked>
+                            <label class="form-check-label fw-semibold text-primary" for="switchAutoSyncCanvas">
+                                Auto-hidratar macros e incidencias en vivo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Herramientas y Macros Dinámicas -->
+                <div class="confluence-toolbar">
+                    <button type="button" class="btn-tool" data-cmd="h5" title="Insertar subtítulo">
+                        <i class="fas fa-heading me-1"></i> Subtítulo
+                    </button>
+                    <button type="button" class="btn-tool" data-cmd="bold" title="Negrita">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button type="button" class="btn-tool" data-cmd="ul" title="Lista de viñetas">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button type="button" class="btn-tool" data-cmd="checklist" title="Insertar lista de verificación">
+                        <i class="fas fa-tasks me-1"></i> Checklist
+                    </button>
+                    <button type="button" class="btn-tool" data-cmd="callout" title="Insertar bloque de nota técnica">
+                        <i class="fas fa-info-circle me-1"></i> Nota Técnica
+                    </button>
+
+                    <div class="vr mx-1"></div>
+
+                    <!-- Inserción de Macros Automatizadas en Vivo -->
+                    <button type="button" class="btn-tool btn-tool-macro" data-macro="kpis" title="Insertar bloque de KPIs del proyecto en vivo">
+                        <i class="fas fa-chart-pie me-1"></i> + Macro KPIs
+                    </button>
+                    <button type="button" class="btn-tool btn-tool-macro" data-macro="incidencias" title="Insertar tabla dinámica de incidencias">
+                        <i class="fas fa-table me-1"></i> + Macro Incidencias
+                    </button>
+                    <button type="button" class="btn-tool btn-tool-macro" data-macro="bitacora" title="Insertar flujo de auditoría y comentarios recientes">
+                        <i class="fas fa-stream me-1"></i> + Macro Bitácora
+                    </button>
+                    <button type="button" class="btn-tool btn-tool-macro" data-macro="equipo" title="Insertar matriz de carga por responsable">
+                        <i class="fas fa-users me-1"></i> + Macro Equipo
+                    </button>
+
+                    <div class="ms-auto d-flex align-items-center gap-1">
+                        <select id="selectInsertarIncidencia" class="form-select form-select-sm" style="font-size: 0.76rem; max-width: 210px;">
+                            <option value="">+ Vincular Incidencia Jira...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Lienzo Editable Rico -->
+                <div id="confluenceEditorCanvas" class="confluence-editor" contenteditable="true" spellcheck="false">
+                    <!-- Contenido cargado dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Asistente de Automatización de Documentos Confluence -->
+<div class="modal fade" id="modalGeneradorAutoCanvas" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold text-dark">
+                    <i class="fas fa-magic text-primary me-2"></i> Automatizar Página de Confluence desde Jira
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-secondary small mb-3">
+                    Selecciona una plantilla inteligente. El motor consultará las tareas, estados Kanban, comentarios, horas e historial de auditoría del proyecto activo para redactar y vincular el documento automáticamente:
+                </p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="automation-blueprint-card h-100" data-blueprint="reporte_ejecutivo">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary-subtle text-primary p-2 me-2"><i class="fas fa-chart-line"></i></span>
+                                <h6 class="fw-bold m-0">Reporte Ejecutivo de Sprint</h6>
+                            </div>
+                            <p class="text-muted small m-0">Genera resumen de avance porcentual, KPIs de entregas, horas registradas y matriz interactiva de incidencias.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="automation-blueprint-card h-100" data-blueprint="bitacora_cambios">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-warning-subtle text-warning p-2 me-2"><i class="fas fa-history"></i></span>
+                                <h6 class="fw-bold m-0">Bitácora de Auditoría & Cambios</h6>
+                            </div>
+                            <p class="text-muted small m-0">Consolida automáticamente los últimos movimientos del tablero Kanban y los comentarios técnicos de los ingenieros.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="automation-blueprint-card h-100" data-blueprint="runbook_componentes">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-info-subtle text-info p-2 me-2"><i class="fas fa-microchip"></i></span>
+                                <h6 class="fw-bold m-0">Runbook Técnico por Componente</h6>
+                            </div>
+                            <p class="text-muted small m-0">Clasifica las incidencias por componente (Switching, VPN/Firewall, Wi-Fi, Inventario) con enlaces directos a cada ticket.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="automation-blueprint-card h-100" data-blueprint="matriz_carga_equipo">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-success-subtle text-success p-2 me-2"><i class="fas fa-users-cog"></i></span>
+                                <h6 class="fw-bold m-0">Matriz Operativa del Equipo</h6>
+                            </div>
+                            <p class="text-muted small m-0">Documenta la distribución de carga, roles y desempeño por especialista asignado en el proyecto.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Historial de Versiones del Documento -->
+<div class="modal fade" id="modalVersionesCanvas" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h6 class="modal-title fw-bold text-dark">
+                    <i class="fas fa-code-branch text-primary me-2"></i> Historial de Versiones de la Página
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <ul class="list-group list-group-flush" id="listaVersionesCanvas">
+                    <!-- Renderizado dinámico -->
                 </ul>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/canvas.js?v=8"></script>
 {% endblock %}

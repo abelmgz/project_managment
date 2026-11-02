@@ -1,0 +1,85 @@
+/* static/css/pages/usuarios.css */
+.avatar-user-lg {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #0052cc;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar-user-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #0747a6;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.badge-rol-Owner {
+    background-color: #eae6ff;
+    color: #403294;
+    border: 1px solid #c0b6f2;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 8px;
+}
+
+.badge-rol-Administrador {
+    background-color: #deebff;
+    color: #0747a6;
+    border: 1px solid #b3d4ff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 8px;
+}
+
+.badge-rol-Usuario {
+    background-color: #ebecf0;
+    color: #42526e;
+    border: 1px solid #dfe1e6;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 8px;
+}
+
+.role-card {
+    border-top-width: 3px !important;
+}
+.role-card-owner { border-top-color: #5243aa !important; }
+.role-card-admin { border-top-color: #0052cc !important; }
+.role-card-user { border-top-color: #6b778c !important; }
+
+.role-perm-list {
+    font-size: 0.78rem;
+    color: #42526e;
+    line-height: 1.65;
+}
+
+.perm-chip {
+    display: inline-block;
+    background-color: #f4f5f7;
+    color: #42526e;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin: 1px 2px;
+}
+.perm-chip-danger {
+    background-color: #ffebe6;
+    color: #bf2600;
+    border-color: #ffbdad;
+}

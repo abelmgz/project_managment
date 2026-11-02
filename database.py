@@ -1,11 +1,10 @@
-# database.py
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///proyectos.db"
+DATABASE_URL = "sqlite:///./proyectos.db"
 
 engine = create_engine(
-    DATABASE_URL, 
+    DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
 
@@ -16,7 +15,6 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
 
 def get_db():
     db = SessionLocal()

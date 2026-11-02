@@ -4,9 +4,9 @@
         <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 1.1rem;">
             <i class="fas fa-layer-group"></i>
         </div>
-        <div>
-            <div class="fw-bold text-dark lh-sm" style="font-size: 0.88rem;">IT Network & Systems</div>
-            <small class="text-muted" style="font-size: 0.75rem;">Proyecto de Software Ágil</small>
+        <div class="overflow-hidden">
+            <div class="fw-bold text-dark lh-sm text-truncate" style="font-size: 0.88rem;" id="sidebarProyectoNombre">IT Network & Systems</div>
+            <small class="text-muted d-block text-truncate" style="font-size: 0.75rem;" id="sidebarProyectoSubtitulo">Proyecto de Software Ágil</small>
         </div>
     </div>
     
@@ -20,18 +20,17 @@
             <li><a href="/weekly" class="sidebar-link {% if request.url.path == '/weekly' %}active{% endif %}"><i class="fas fa-history sidebar-icon"></i> Weekly Logs & Avance</a></li>
         </ul>
 
-        <div class="sidebar-category">DOCUMENTACIÓN</div>
+        <div class="sidebar-category">DOCUMENTACIÓN & ACCESOS</div>
         <ul class="list-unstyled">
             <li><a href="/canvas" class="sidebar-link {% if request.url.path == '/canvas' %}active{% endif %}"><i class="fas fa-book-open sidebar-icon"></i> Confluence Canvas</a></li>
+            <li><a href="/usuarios" class="sidebar-link {% if request.url.path == '/usuarios' %}active{% endif %}"><i class="fas fa-users-cog sidebar-icon"></i> Usuarios & Roles</a></li>
         </ul>
     </div>
 
     <div class="p-3 border-top bg-white">
         <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.68rem; letter-spacing: 0.5px;">CAMBIAR PROYECTO</label>
-        <select class="form-select form-select-sm border-2 fw-medium text-dark" style="font-size: 0.82rem; border-color: #dfe1e6;">
-            <option>IT Network & Systems (DANA)</option>
-            <option>Control de Inventario & Dispositivos</option>
-            <option>Gestión de Tareas Personales</option>
+        <select id="selectorProyectoGlobal" class="form-select form-select-sm border-2 fw-medium text-dark" style="font-size: 0.82rem; border-color: #dfe1e6;">
+            <option value="">IT Network & Systems (DANA)</option>
         </select>
     </div>
 </nav>

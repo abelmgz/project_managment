@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Weekly Logs & Histórico de Esfuerzo - Jira Software{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/weekly.css?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Encabezado de Página al Estilo de Jira -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h2 class="fw-bold text-dark m-0">Weekly Logs & Histórico de Esfuerzo</h2>
+            <p class="text-muted m-0" style="font-size: 0.9rem;">Bitácora de tiempos y registros de trabajo semanal colapsable.</p>
+        </div>
+    </div>
+
+    <!-- Contenedor del Acordeón Ágil -->
+    <div class="weekly-accordion-container">
+        <!-- Cargado dinámicamente desde SQLite según proyecto seleccionado -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/weekly.js?v=5"></script>
+{% endblock %}

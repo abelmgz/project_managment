@@ -9,12 +9,16 @@
                 </div>
                 <div class="modal-body p-3" style="font-size: 0.85rem;">
                     <div class="mb-2">
-                        <label class="form-label fw-bold text-secondary">Nombre del Proyecto</label>
+                        <label class="form-label fw-bold text-secondary">Nombre del Proyecto *</label>
                         <input type="text" name="nombre" class="form-control form-control-sm" required placeholder="Ej: Red Corporativa GDL">
                     </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold text-secondary">Clave / Key (Prefijo) *</label>
+                        <input type="text" name="clave" class="form-control form-control-sm" required placeholder="Ej: GDL" maxlength="6">
+                    </div>
                     <div class="mb-0">
-                        <label class="form-label fw-bold text-secondary">Clave / Key (Prefijo)</label>
-                        <input type="text" name="clave" class="form-control form-control-sm" required placeholder="Ej: GDL" maxlength="4">
+                        <label class="form-label fw-bold text-secondary">Descripción</label>
+                        <textarea name="descripcion" class="form-control form-control-sm" rows="2" placeholder="Descripción opcional..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 py-2">

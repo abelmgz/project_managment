@@ -7,7 +7,7 @@
     <title>{% block title %}Jira Software{% endblock %}</title>
     <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/layouts/base.css">
+    <link rel="stylesheet" href="/static/css/layouts/base.css?v=7">
     {% block extra_styles %}{% endblock %}
 </head>
 <body>
@@ -23,11 +23,25 @@
         <div class="d-flex align-items-center ms-auto">
             <div class="jira-search-container">
                 <i class="fas fa-search jira-search-icon"></i>
-                <input type="text" class="jira-search-input" placeholder="Buscar incidencias...">
+                <input type="text" id="buscadorGlobalJira" class="jira-search-input" placeholder="Buscar incidencias...">
             </div>
             <div class="jira-top-icon"><i class="far fa-bell"></i></div>
-            <div class="jira-top-icon"><i class="fas fa-cog"></i></div>
-            <div class="jira-avatar-circle">AM</div>
+            <a href="/usuarios" class="jira-top-icon text-white text-decoration-none" title="Administración de Usuarios y Roles"><i class="fas fa-cog"></i></a>
+
+            <!-- Selector de Sesión de Usuario y Rol en Barra Superior -->
+            <div class="dropdown">
+                <div class="d-flex align-items-center gap-2" style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false" title="Cambiar sesión de usuario">
+                    <div class="d-none d-md-block text-end lh-1">
+                        <div class="fw-bold text-white" style="font-size: 0.78rem;" id="navbarUsuarioNombre">Abel Martinez</div>
+                        <small class="text-white-50" style="font-size: 0.66rem;" id="navbarUsuarioRol">OWNER</small>
+                    </div>
+                    <div class="jira-avatar-circle" id="navbarUsuarioAvatar">AM</div>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" id="navbarMenuUsuariosSesion" style="min-width: 260px; font-size: 0.83rem;">
+                    <li><h6 class="dropdown-header text-uppercase" style="font-size: 0.68rem;">Cambiar Sesión Activa</h6></li>
+                    <li><span class="dropdown-item text-muted">Cargando perfiles...</span></li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -39,11 +53,12 @@
     </div>
 
     {% include "partials/modal_incidencia.html" %}
+    {% include "partials/detalle_incidencia.html" %}
     {% include "partials/modal_proyecto.html" %}
 
     <script src="/static/vendor/chartjs/chart.umd.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/layouts/base.js"></script>
+    <script src="/static/js/layouts/base.js?v=7"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

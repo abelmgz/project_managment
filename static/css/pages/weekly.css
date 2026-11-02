@@ -1,29 +1,78 @@
-/* static/css/pages/weekly.css */
-.weekly-day-container {
-    background-color: #f4f5f7;
-    border-radius: 4px;
-    border-color: #dfe1e6 !important;
-    overflow: hidden;
+.weekly-accordion-container {
+    width: 100%;
+    margin-top: 10px;
 }
-.weekly-header-row {
+
+.weekly-day-card {
+    background: #f4f5f7;
+    border: 1px solid #dfe1e6;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: background 0.15s ease;
+}
+
+.weekly-day-header {
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.15s;
+    transition: background 0.2s;
 }
-.weekly-header-row:hover {
-    background-color: #ebecf0;
+
+.weekly-day-header:hover {
+    background: #ebecf0;
 }
-.badge-weekly-hours {
+
+.weekly-day-card.expanded .weekly-day-header {
+    border-bottom: 1px solid #dfe1e6;
+}
+
+.day-title {
+    font-size: 0.95rem;
+    color: #172b4d;
+}
+
+.badge-hours-blue {
     background-color: #deebff;
     color: #0052cc;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     font-weight: 600;
+    border-radius: 3px;
 }
-.weekly-content-body {
-    transition: all 0.2s ease-in-out;
+
+.badge-hours-gray {
+    background-color: #ebecf0;
+    color: #42526e;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 3px;
 }
-.weekly-arrow-toggle {
-    transition: transform 0.15s;
+
+.toggle-icon {
     width: 12px;
-    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.weekly-day-body {
+    transition: max-height 0.25s ease-out;
+}
+
+.weekly-task-row {
+    font-size: 0.9rem;
+}
+
+.task-key {
+    font-size: 0.88rem;
+    text-decoration: none;
+}
+
+.task-key:hover {
+    text-decoration: underline;
+}
+
+.task-desc {
+    color: #42526e;
+}
+
+.task-hours {
+    font-size: 0.88rem;
+    color: #172b4d;
 }

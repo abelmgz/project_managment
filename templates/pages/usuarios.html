@@ -1,0 +1,205 @@
+<!-- templates/pages/usuarios.html -->
+{% extends "layouts/base.html" %}
+
+{% block title %}Administración de Usuarios & Roles - Jira Software{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/usuarios.css?v=7">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Encabezado -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="font-size: 0.8rem;">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Administración</a></li>
+                    <li class="breadcrumb-item active text-dark fw-medium" aria-current="page">Usuarios, Roles & Permisos</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark m-0" style="font-size: 1.55rem; letter-spacing: -0.5px;">Gestión de Usuarios y Control de Acceso (RBAC)</h2>
+            <p class="text-muted m-0" style="font-size: 0.85rem;">Administra los miembros del equipo, sus roles de acceso y privilegios operativos.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" id="btnNuevoUsuario" class="btn btn-primary px-3 py-2 fw-semibold shadow-sm" style="background-color: #0052cc; border: none; font-size: 0.85rem;">
+                <i class="fas fa-user-plus me-1"></i> Nuevo Usuario
+            </button>
+        </div>
+    </div>
+
+    <!-- Banner de Sesión Activa y Reglas de Rol -->
+    <div class="alert border-0 shadow-sm d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4" id="bannerSesionUsuarios" style="background-color: #f4f5f7; border-left: 4px solid #0052cc !important;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar-user-lg" id="bannerAvatar">AM</div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold text-dark" id="bannerNombre">Abel Martinez</span>
+                    <span class="badge" id="bannerRolBadge">OWNER</span>
+                </div>
+                <small class="text-secondary d-block" id="bannerDescripcionPermisos">
+                    Tienes control total del sistema, visualización global y privilegios exclusivos de eliminación.
+                </small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <label for="selectorCambioRapidoUsuario" class="text-muted fw-bold mb-0" style="font-size: 0.72rem; text-transform: uppercase;">Simular / Cambiar Sesión:</label>
+            <select id="selectorCambioRapidoUsuario" class="form-select form-select-sm fw-semibold" style="width: 240px; font-size: 0.82rem;"></select>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Jerarquía de Roles y Permisos -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="role-card role-card-owner h-100 p-3 rounded shadow-sm bg-white border">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge badge-rol-Owner">OWNER (PROPIETARIO)</span>
+                    <i class="fas fa-crown text-warning"></i>
+                </div>
+                <p class="text-secondary mb-2" style="font-size: 0.8rem;">Control total de la plataforma y único rol con privilegios destructivos.</p>
+                <ul class="list-unstyled mb-0 role-perm-list">
+                    <li><i class="fas fa-check-circle text-success me-1"></i> Ver todas las actividades y proyectos</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i> Ver y administrar todos los usuarios</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i> <strong>Privilegio exclusivo de Eliminar</strong> (usuarios, tareas, proyectos)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="role-card role-card-admin h-100 p-3 rounded shadow-sm bg-white border">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge badge-rol-Administrador">ADMINISTRADOR</span>
+                    <i class="fas fa-user-shield text-primary"></i>
+                </div>
+                <p class="text-secondary mb-2" style="font-size: 0.8rem;">Supervisión global de operaciones y gestión de cuentas sin borrado.</p>
+                <ul class="list-unstyled mb-0 role-perm-list">
+                    <li><i class="fas fa-check-circle text-success me-1"></i> Ver todas las actividades de todos los usuarios</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i> Ver, crear y editar usuarios</li>
+                    <li><i class="fas fa-times-circle text-danger me-1"></i> Sin privilegio de eliminar registros</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="role-card role-card-user h-100 p-3 rounded shadow-sm bg-white border">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge badge-rol-Usuario">USUARIO</span>
+                    <i class="fas fa-user-check text-secondary"></i>
+                </div>
+                <p class="text-secondary mb-2" style="font-size: 0.8rem;">Acceso enfocado exclusivamente en sus actividades e incidencias asignadas.</p>
+                <ul class="list-unstyled mb-0 role-perm-list">
+                    <li><i class="fas fa-check-circle text-success me-1"></i> <strong>Ver únicamente sus propias actividades</strong> en toda la app</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i> Crear incidencias propias y comentar</li>
+                    <li><i class="fas fa-times-circle text-danger me-1"></i> No puede ver otros usuarios ni eliminar</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="card border shadow-sm rounded-3">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-dark m-0" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.4px;">
+                Directorio de Usuarios Visibles
+            </h6>
+            <span class="badge bg-light text-dark border" id="contadorUsuariosTabla">0 usuarios</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary fw-semibold text-uppercase" style="font-size: 0.73rem; letter-spacing: 0.5px;">
+                        <tr>
+                            <th class="ps-4 py-3">Usuario</th>
+                            <th class="py-3">Cargo / Especialidad</th>
+                            <th class="py-3">Rol Asignado</th>
+                            <th class="py-3">Permisos Activos</th>
+                            <th class="py-3 text-center">Incidencias</th>
+                            <th class="pe-4 py-3 text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuariosCuerpo" style="font-size: 0.85rem;">
+                        <!-- Cargado dinámicamente desde /api/usuarios -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear / Editar Usuario -->
+<div class="modal fade" id="modalFormularioUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 6px;">
+            <form id="formUsuarioRBAC">
+                <input type="hidden" id="usuarioIdEditar" value="">
+                <div class="modal-header bg-light py-2 px-3 border-bottom">
+                    <h6 class="modal-title fw-bold text-dark" id="modalUsuarioTitulo">
+                        <i class="fas fa-user-cog me-1 text-primary"></i> Registrar Usuario
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
+                </div>
+                <div class="modal-body p-3" style="font-size: 0.85rem;">
+                    <div id="alertaErrorUsuario" class="alert alert-danger py-2 px-3 d-none" style="font-size: 0.8rem;"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary mb-1">Nombre Completo *</label>
+                        <input type="text" id="inputUsuarioNombre" class="form-control form-control-sm" required placeholder="Ej: Roberto Garza">
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary mb-1">Correo Electrónico *</label>
+                            <input type="email" id="inputUsuarioEmail" class="form-control form-control-sm" required placeholder="roberto@correo.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary mb-1">Cargo / Área</label>
+                            <input type="text" id="inputUsuarioCargo" class="form-control form-control-sm" value="Ingeniero de Red" placeholder="Ej: Especialista Switching">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary mb-1">Rol del Sistema *</label>
+                        <select id="inputUsuarioRol" class="form-select form-select-sm fw-semibold">
+                            <option value="Usuario">Usuario (Solo ve sus propias actividades)</option>
+                            <option value="Administrador">Administrador (Ve todos los usuarios y tareas, sin eliminar)</option>
+                            <option value="Owner" id="opcionRolOwner">Owner (Todos los privilegios incluidos eliminar)</option>
+                        </select>
+                    </div>
+
+                    <div class="border rounded p-2 bg-light">
+                        <label class="form-label fw-bold text-secondary mb-2" style="font-size: 0.75rem; text-transform: uppercase;">Permisos Asociados</label>
+                        <div class="d-flex flex-column gap-1" style="font-size: 0.8rem;">
+                            <div class="form-check">
+                                <input class="form-check-input perm-check" type="checkbox" value="ver_propias" id="permVerPropias" checked>
+                                <label class="form-check-label" for="permVerPropias">Ver y gestionar sus propias actividades</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input perm-check" type="checkbox" value="ver_todo" id="permVerTodo">
+                                <label class="form-check-label" for="permVerTodo">Ver actividades de todos los miembros</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input perm-check" type="checkbox" value="ver_usuarios" id="permVerUsuarios">
+                                <label class="form-check-label" for="permVerUsuarios">Ver directorio completo de usuarios</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input perm-check" type="checkbox" value="gestionar_usuarios" id="permGestionarUsuarios">
+                                <label class="form-check-label" for="permGestionarUsuarios">Crear y editar usuarios</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input perm-check" type="checkbox" value="eliminar_todo" id="permEliminarTodo">
+                                <label class="form-check-label fw-semibold text-danger" for="permEliminarTodo">Privilegio total de eliminar (Exclusivo Owner)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top py-2 px-3">
+                    <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-sm btn-primary px-3 fw-bold">Guardar Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/usuarios.js?v=7"></script>
+{% endblock %}

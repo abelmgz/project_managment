@@ -2,7 +2,7 @@
 {% extends "layouts/base.html" %}
 {% block title %}Resumen - Jira Software{% endblock %}
 {% block extra_styles %}
-<link rel="stylesheet" href="/static/css/pages/dashboard.css">
+<link rel="stylesheet" href="/static/css/pages/dashboard.css?v=5">
 {% endblock %}
 
 {% block content %}
@@ -12,7 +12,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1" style="font-size: 0.8rem;">
                     <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">Proyectos</a></li>
-                    <li class="breadcrumb-item active text-dark fw-medium" aria-current="page">IT Network & Systems</li>
+                    <li class="breadcrumb-item active text-dark fw-medium" aria-current="page" id="breadcrumbProyectoActivo">IT Network & Systems</li>
                 </ol>
             </nav>
             <h2 class="fw-bold text-dark m-0" style="font-size: 1.6rem; letter-spacing: -0.5px;">Resumen del Proyecto & Dashboard</h2>
@@ -118,5 +118,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/pages/dashboard.js"></script>
+<script src="/static/js/pages/dashboard.js?v=5"></script>
 {% endblock %}
