@@ -20,8 +20,9 @@
             <li><a href="/weekly" class="sidebar-link {% if request.url.path == '/weekly' %}active{% endif %}"><i class="fas fa-history sidebar-icon"></i> Weekly Logs & Avance</a></li>
         </ul>
 
-        <div class="sidebar-category">DOCUMENTACIÓN & ACCESOS</div>
+        <div class="sidebar-category">DOCUMENTACIÓN & ADMINISTRACIÓN</div>
         <ul class="list-unstyled">
+            <li><a href="/proyectos" class="sidebar-link {% if request.url.path == '/proyectos' %}active{% endif %}"><i class="fas fa-folder-open sidebar-icon"></i> Administrar Proyectos</a></li>
             <li><a href="/canvas" class="sidebar-link {% if request.url.path == '/canvas' %}active{% endif %}"><i class="fas fa-book-open sidebar-icon"></i> Confluence Canvas</a></li>
             <li><a href="/usuarios" class="sidebar-link {% if request.url.path == '/usuarios' %}active{% endif %}"><i class="fas fa-users-cog sidebar-icon"></i> Usuarios & Roles</a></li>
         </ul>

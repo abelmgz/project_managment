@@ -41,6 +41,7 @@ class Proyecto(Base):
     nombre = Column(String, nullable=False)
     clave_proyecto = Column(String, unique=True, nullable=False)
     descripcion = Column(Text, nullable=True)
+    estado = Column(String, nullable=False, default="En proceso")  # En proceso, Planeación, En pausa, Finalizado
     fecha_creacion = Column(DateTime, default=utc_now)
 
     tareas = relationship("Tarea", back_populates="proyecto", cascade="all, delete-orphan")
@@ -58,6 +59,7 @@ class Tarea(Base):
     componente = Column(String, nullable=True)     # VPN/Firewall, Switching, Wi-Fi, Inventario
     horas_registradas = Column(Float, default=0.0)
     fecha_creacion = Column(DateTime, default=utc_now)
+    fecha_inicio = Column(DateTime, default=utc_now, nullable=True)
     fecha_limite = Column(DateTime, nullable=True)
 
     proyecto_id = Column(Integer, ForeignKey("proyectos.id", ondelete="CASCADE"), nullable=False)
@@ -149,6 +151,26 @@ def crear_vistas_y_triggers(target, connection, **kw):
     if "cargo" not in columnas_usuarios:
         connection.execute(text("ALTER TABLE usuarios ADD COLUMN cargo VARCHAR DEFAULT 'Ingeniero de Red';"))
 
+    # Migración segura de columna 'estado' en tabla 'proyectos'
+    columnas_proyectos = [
+        fila[1] for fila in connection.execute(text("PRAGMA table_info(proyectos);")).fetchall()
+    ]
+    if "estado" not in columnas_proyectos:
+        connection.execute(text("ALTER TABLE proyectos ADD COLUMN estado VARCHAR NOT NULL DEFAULT 'En proceso';"))
+        connection.execute(
+            text("UPDATE proyectos SET estado = 'En proceso' WHERE estado IS NULL OR TRIM(estado) = '';")
+        )
+
+    # Migración segura de columna 'fecha_inicio' en tabla 'tareas'
+    columnas_tareas = [
+        fila[1] for fila in connection.execute(text("PRAGMA table_info(tareas);")).fetchall()
+    ]
+    if "fecha_inicio" not in columnas_tareas:
+        connection.execute(text("ALTER TABLE tareas ADD COLUMN fecha_inicio DATETIME;"))
+        connection.execute(
+            text("UPDATE tareas SET fecha_inicio = COALESCE(fecha_creacion, CURRENT_TIMESTAMP) WHERE fecha_inicio IS NULL;")
+        )
+
     # 1. Vista unificada de incidencias, proyectos y usuario asignado
     connection.execute(text("DROP VIEW IF EXISTS vista_proyectos_tareas;"))
     connection.execute(text("""
@@ -162,11 +184,14 @@ def crear_vistas_y_triggers(target, connection, **kw):
            t.componente,
            t.horas_registradas,
            strftime('%Y-%m-%d', t.fecha_creacion) AS fecha_creacion,
-           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_creacion)) AS fecha_calendario,
-           strftime('%Y-%m-%d', t.fecha_limite) AS fecha_limite,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_inicio, t.fecha_creacion)) AS fecha_inicio,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_inicio, t.fecha_creacion)) AS fecha_calendario,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_inicio, t.fecha_creacion)) AS fecha_limite,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_inicio, t.fecha_creacion)) AS due_date,
            t.proyecto_id,
            p.nombre AS proyecto_nombre,
            p.clave_proyecto AS proyecto_clave,
+           p.estado AS proyecto_estado,
            t.asignado_id,
            u.nombre AS asignado_nombre,
            u.rol AS asignado_rol
@@ -201,13 +226,17 @@ def crear_vistas_y_triggers(target, connection, **kw):
            t.titulo,
            t.descripcion,
            t.clave_incidencia || ' ' || t.titulo AS title,
-           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_creacion)) AS start,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_inicio, t.fecha_creacion)) AS start,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_inicio, t.fecha_creacion)) AS fecha_inicio,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_inicio, t.fecha_creacion)) AS fecha_limite,
+           strftime('%Y-%m-%d', COALESCE(t.fecha_limite, t.fecha_inicio, t.fecha_creacion)) AS due_date,
            t.estado,
            t.prioridad,
            t.componente,
            t.horas_registradas,
            t.proyecto_id,
            p.nombre AS proyecto_nombre,
+           p.estado AS proyecto_estado,
            t.asignado_id,
            u.nombre AS asignado_nombre
     FROM tareas t

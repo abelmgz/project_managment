@@ -3,26 +3,56 @@
 {% block title %}Weekly Logs & Histórico de Esfuerzo - Jira Software{% endblock %}
 
 {% block extra_styles %}
-<link rel="stylesheet" href="/static/css/pages/weekly.css?v=5">
+<link rel="stylesheet" href="/static/css/pages/weekly.css?v=9">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
-    <!-- Encabezado de Página al Estilo de Jira -->
-    <div class="row align-items-center mb-4">
-        <div class="col">
+    <!-- Encabezado de Página con Navegación Semanal -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
             <h2 class="fw-bold text-dark m-0">Weekly Logs & Histórico de Esfuerzo</h2>
-            <p class="text-muted m-0" style="font-size: 0.9rem;">Bitácora de tiempos y registros de trabajo semanal colapsable.</p>
+            <p class="text-muted m-0" style="font-size: 0.88rem;">
+                Bitácora semanal contabilizada según el <strong>Due Date</strong> de cada incidencia.
+            </p>
+        </div>
+
+        <!-- Controles de Navegación por Semana (Anterior / Semana Actual / Siguiente) -->
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="btn-group btn-group-sm shadow-sm" role="group" aria-label="Navegación de semanas">
+                <button type="button" class="btn btn-white border bg-white fw-semibold px-3" id="btnWeeklySemanaAnterior" title="Ver semana anterior">
+                    <i class="fas fa-chevron-left me-1"></i> Semana Anterior
+                </button>
+                <button type="button" class="btn btn-outline-primary fw-bold px-3" id="btnWeeklySemanaActual" title="Volver a la semana actual">
+                    <i class="fas fa-calendar-day me-1"></i> Semana Actual
+                </button>
+                <button type="button" class="btn btn-white border bg-white fw-semibold px-3" id="btnWeeklySemanaSiguiente" title="Ver semana siguiente">
+                    Semana Siguiente <i class="fas fa-chevron-right ms-1"></i>
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Contenedor del Acordeón Ágil -->
+    <!-- Barra informativa del rango de la semana activa y resumen de horas -->
+    <div class="card border-0 shadow-sm mb-3 bg-white">
+        <div class="card-body py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white px-2 py-1" id="weeklyEtiquetaTipoSemana">SEMANA ACTUAL</span>
+                <span class="fw-bold text-dark" style="font-size: 0.95rem;" id="weeklyRangoSemanaTexto">Cargando semana...</span>
+            </div>
+            <div id="weeklyResumenGlobal" class="d-flex flex-wrap align-items-center gap-2">
+                <!-- Resumen de horas y actividades de la semana seleccionada -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor del Acordeón Ágil agrupado por Due Date de la semana seleccionada -->
     <div class="weekly-accordion-container">
-        <!-- Cargado dinámicamente desde SQLite según proyecto seleccionado -->
+        <!-- Cargado dinámicamente desde SQLite según la semana activa -->
     </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/pages/weekly.js?v=5"></script>
+<script src="/static/js/pages/weekly.js?v=14"></script>
 {% endblock %}

@@ -7,12 +7,25 @@
 
 {% block content %}
 <div class="container-fluid p-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
             <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">Calendario de Hitos y Entregas</h2>
             <p class="text-muted m-0" style="font-size: 0.85rem;">Cronograma de mantenimientos, configuraciones de red y despliegues</p>
         </div>
-        <div class="fw-bold text-dark" style="font-size: 1.1rem; letter-spacing: -0.3px;" id="calendarioMesTitulo">Octubre 2026</div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm shadow-sm" role="group" aria-label="Navegación del calendario">
+                <button type="button" class="btn btn-white border bg-white fw-semibold px-3" id="btnCalMesAnterior" title="Mes anterior">
+                    <i class="fas fa-chevron-left me-1"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-outline-primary fw-bold px-3" id="btnCalHoy" title="Ir al mes y día actual">
+                    <i class="fas fa-calendar-day me-1"></i> Hoy
+                </button>
+                <button type="button" class="btn btn-white border bg-white fw-semibold px-3" id="btnCalMesSiguiente" title="Mes siguiente">
+                    Siguiente <i class="fas fa-chevron-right ms-1"></i>
+                </button>
+            </div>
+            <div class="fw-bold text-dark ms-2 text-end" style="font-size: 1.1rem; min-width: 155px; letter-spacing: -0.3px;" id="calendarioMesTitulo">Noviembre 2026</div>
+        </div>
     </div>
 
     <div class="card shadow-sm border p-0 rounded-3">
@@ -34,5 +47,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/pages/calendario.js?v=5"></script>
+<script src="/static/js/pages/calendario.js?v=14"></script>
 {% endblock %}

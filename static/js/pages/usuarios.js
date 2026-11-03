@@ -232,7 +232,19 @@ document.addEventListener('DOMContentLoaded', function() {
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalFormularioUsuario')).show();
     }
 
-    function eliminarUsuario(uid) {
+    async function eliminarUsuario(uid) {
+        const lista = (datosRespuesta && datosRespuesta.usuarios) ? datosRespuesta.usuarios : [];
+        const u = lista.find(item => String(item.id) === String(uid));
+        const nombreMostrar = u ? `${u.nombre} (${u.rol})` : `ID #${uid}`;
+
+        if (window.confirmarEliminacion) {
+            const confirmado = await window.confirmarEliminacion({
+                titulo: 'Advertencia: Borrar Usuario',
+                mensaje: `¿Estás seguro de que deseas borrar al usuario "${nombreMostrar}"? Esta acción no se puede deshacer.`
+            });
+            if (!confirmado) return;
+        }
+
         const cabeceras = {};
         if (window.obtenerUsuarioActivoId && window.obtenerUsuarioActivoId()) {
             cabeceras['X-User-Id'] = String(window.obtenerUsuarioActivoId());
@@ -250,8 +262,21 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(() => {
             if (window.cargarSesionUsuariosGlobal) window.cargarSesionUsuariosGlobal();
             cargarDirectorioUsuarios();
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(
+                    `El usuario "${nombreMostrar}" fue eliminado del directorio.`,
+                    'danger',
+                    'Usuario Eliminado'
+                );
+            }
         })
-        .catch(err => alert(err.message));
+        .catch(err => {
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(err.message || 'No se pudo eliminar el usuario.', 'danger', 'Error');
+            } else {
+                alert(err.message);
+            }
+        });
     }
 
     const btnNuevo = document.getElementById('btnNuevoUsuario');
@@ -323,12 +348,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (modalInst) modalInst.hide();
                 if (window.cargarSesionUsuariosGlobal) window.cargarSesionUsuariosGlobal();
                 cargarDirectorioUsuarios();
+                if (window.mostrarNotificacion) {
+                    if (idEditar) {
+                        window.mostrarNotificacion(
+                            `Se actualizaron los datos y permisos de "${payload.nombre}" (${payload.rol}).`,
+                            'info',
+                            'Usuario Actualizado'
+                        );
+                    } else {
+                        window.mostrarNotificacion(
+                            `Se registró al usuario "${payload.nombre}" con el rol ${payload.rol}.`,
+                            'success',
+                            'Usuario Creado'
+                        );
+                    }
+                }
             })
             .catch(err => {
                 const alerta = document.getElementById('alertaErrorUsuario');
                 if (alerta) {
                     alerta.textContent = err.message;
                     alerta.classList.remove('d-none');
+                }
+                if (window.mostrarNotificacion) {
+                    window.mostrarNotificacion(err.message || 'Error al guardar el usuario.', 'danger', 'Error');
                 }
             });
         });

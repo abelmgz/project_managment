@@ -7,7 +7,7 @@
     <title>{% block title %}Jira Software{% endblock %}</title>
     <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/layouts/base.css?v=7">
+    <link rel="stylesheet" href="/static/css/layouts/base.css?v=14">
     {% block extra_styles %}{% endblock %}
 </head>
 <body>
@@ -15,15 +15,19 @@
         <div class="d-flex align-items-center">
             <div class="jira-grid-icon"><i class="fas fa-th"></i></div>
             <div class="jira-logo"><i class="fab fa-jira"></i> Jira Software</div>
-            <div class="jira-nav-item">Proyectos <i class="fas fa-chevron-down ms-1"></i></div>
+            <a href="/proyectos" class="jira-nav-item text-white text-decoration-none">Proyectos <i class="fas fa-chevron-down ms-1"></i></a>
             <div class="jira-nav-item">Filtros <i class="fas fa-chevron-down ms-1"></i></div>
             <div class="jira-nav-item">Espacios Docs <i class="fas fa-chevron-down ms-1"></i></div>
             <button class="jira-btn-create" data-bs-toggle="modal" data-bs-target="#crearIncidenciaModal"><i class="fas fa-plus me-1"></i> Crear Tarea</button>
         </div>
         <div class="d-flex align-items-center ms-auto">
-            <div class="jira-search-container">
+            <div class="jira-search-container" id="contenedorBuscadorGlobal">
                 <i class="fas fa-search jira-search-icon"></i>
-                <input type="text" id="buscadorGlobalJira" class="jira-search-input" placeholder="Buscar incidencias...">
+                <input type="text" id="buscadorGlobalJira" class="jira-search-input" placeholder="Buscar incidencias en todos los proyectos..." autocomplete="off">
+                <button type="button" id="btnLimpiarBuscadorGlobal" class="jira-search-clear d-none" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div id="buscadorGlobalDropdown" class="jira-search-dropdown d-none" role="listbox" aria-label="Resultados de autocompletado de incidencias"></div>
             </div>
             <div class="jira-top-icon"><i class="far fa-bell"></i></div>
             <a href="/usuarios" class="jira-top-icon text-white text-decoration-none" title="Administración de Usuarios y Roles"><i class="fas fa-cog"></i></a>
@@ -56,9 +60,43 @@
     {% include "partials/detalle_incidencia.html" %}
     {% include "partials/modal_proyecto.html" %}
 
+    <!-- Modal Global de Advertencia para Confirmar Eliminación (OK / Cancelar) -->
+    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 8px;">
+                <div class="modal-header bg-danger-subtle border-bottom-0 py-3 px-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-exclamation-triangle text-danger fs-5"></i>
+                        <h6 class="modal-title fw-bold text-danger m-0" id="modalConfirmarTitulo">Advertencia de Eliminación</h6>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" style="font-size: 0.75rem;"></button>
+                </div>
+                <div class="modal-body py-3 px-4">
+                    <p class="text-dark mb-1 fw-medium" style="font-size: 0.9rem;" id="modalConfirmarMensaje">
+                        ¿Estás seguro de que deseas borrar este registro?
+                    </p>
+                    <small class="text-muted d-block" style="font-size: 0.78rem;">
+                        Esta acción eliminará la información de forma permanente y no se podrá deshacer.
+                    </small>
+                </div>
+                <div class="modal-footer bg-light border-top py-2 px-4 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-sm btn-light border fw-semibold px-3" id="btnConfirmarCancelar" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger fw-bold px-4" id="btnConfirmarOk">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de Mensajes Flotantes en Parte Inferior Derecha -->
+    <div id="jiraToastContainer" class="jira-toast-container"></div>
+
     <script src="/static/vendor/chartjs/chart.umd.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/layouts/base.js?v=7"></script>
+    <script src="/static/js/layouts/base.js?v=14"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

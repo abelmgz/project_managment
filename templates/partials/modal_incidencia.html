@@ -1,14 +1,14 @@
 <!-- templates/partials/modal_incidencia.html -->
 <div class="modal fade" id="crearIncidenciaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 4px;">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 780px; width: 92vw;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 8px;">
             <form id="formCrearIncidencia" action="/api/tareas" method="POST">
                 <input type="hidden" name="proyecto_id" id="modalIncidenciaProyecto" value="">
-                <div class="modal-header bg-light py-2 px-3 border-0">
+                <div class="modal-header bg-light py-2 px-4 border-bottom">
                     <h6 class="modal-title fw-bold text-dark"><i class="fas fa-plus-circle me-1 text-primary"></i> Crear Nueva Incidencia</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
                 </div>
-                <div class="modal-body p-3" style="font-size: 0.85rem;">
+                <div class="modal-body p-4" style="font-size: 0.87rem;">
                     <div class="mb-3">
                         <label class="form-label fw-bold text-secondary">Título / Resumen *</label>
                         <input type="text" name="titulo" class="form-control form-control-sm" required placeholder="Ej: Migración de Core Switch">
@@ -17,8 +17,8 @@
                         <label class="form-label fw-bold text-secondary">Descripción</label>
                         <textarea name="descripcion" class="form-control form-control-sm" rows="3" placeholder="Detalle técnico de la incidencia..."></textarea>
                     </div>
-                    <div class="row g-2">
-                        <div class="col-md-6">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
                             <label class="form-label fw-bold text-secondary">Prioridad</label>
                             <select name="prioridad" class="form-select form-select-sm">
                                 <option value="Alta">Alta</option>
@@ -26,9 +26,39 @@
                                 <option value="Baja">Baja</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-bold text-secondary">Etiqueta</label>
                             <input type="text" name="componente" class="form-control form-control-sm" value="Networking" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-secondary">Horas</label>
+                            <input type="number" name="horas_registradas" class="form-control form-control-sm" step="0.5" min="0" value="1.0">
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-bold text-secondary m-0"><i class="far fa-calendar-check me-1 text-primary"></i>Fecha de Inicio *</label>
+                                <button type="button" class="btn btn-link p-0 text-decoration-none fw-bold btn-ir-hoy-fecha" data-target-input="crearFechaInicio" style="font-size: 0.72rem;" title="Ir al día de hoy">
+                                    <i class="fas fa-calendar-day me-1"></i>Hoy
+                                </button>
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <input type="date" name="fecha_inicio" id="crearFechaInicio" class="form-control form-control-sm" required>
+                                <button type="button" class="btn btn-outline-secondary btn-ir-hoy-fecha" data-target-input="crearFechaInicio" title="Navegar al día actual">Hoy</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-bold text-secondary m-0"><i class="far fa-calendar-alt me-1 text-danger"></i>Due Date (Weekly Logs) *</label>
+                                <button type="button" class="btn btn-link p-0 text-decoration-none fw-bold btn-ir-hoy-fecha" data-target-input="crearFechaDueDate" style="font-size: 0.72rem;" title="Ir al día de hoy">
+                                    <i class="fas fa-calendar-day me-1"></i>Hoy
+                                </button>
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <input type="date" name="fecha_limite" id="crearFechaDueDate" class="form-control form-control-sm" required>
+                                <button type="button" class="btn btn-outline-primary btn-ir-hoy-fecha" data-target-input="crearFechaDueDate" title="Navegar al día actual">Hoy</button>
+                            </div>
                         </div>
                     </div>
                 </div>

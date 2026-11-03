@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const iniciales = obtenerIniciales(tarea.asignado_nombre, 'AM');
             const prioridad = tarea.prioridad || 'Media';
+            const fechaInicio = (tarea.fecha_inicio || tarea.fecha_creacion || '').slice(0, 10);
+            const fechaDue = (tarea.due_date || tarea.fecha_limite || tarea.fecha_calendario || '').slice(0, 10);
 
             const tarjetaHTML = `
                 <div class="kanban-item-card card-prio-${prioridad}" draggable="true" data-id="${tarea.id}" onclick="window.abrirDetalleIncidencia(${tarea.id})">
@@ -59,7 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="card-key-link">${tarea.clave_incidencia}</span>
                         <span class="badge-priority priority-${prioridad}">${prioridad}</span>
                     </div>
-                    <div class="card-title-text mb-3">${tarea.titulo}</div>
+                    <div class="card-title-text mb-2">${tarea.titulo}</div>
+                    <div class="text-muted mb-2" style="font-size: 0.72rem;">
+                        <i class="far fa-calendar-check text-primary me-1"></i>${fechaInicio || '-'}
+                        <i class="fas fa-arrow-right mx-1" style="font-size: 0.6rem;"></i>
+                        <i class="far fa-calendar-alt text-danger me-1"></i><strong>${fechaDue || '-'}</strong>
+                    </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="card-tag-box"><i class="fas fa-tag fa-xs me-1"></i>${tarea.componente || 'General'}</span>
                         <div class="avatar-kanban" title="${tarea.asignado_nombre || 'Abel Martinez'}">${iniciales}</div>
@@ -155,7 +162,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     return res.json();
                 })
-                .catch(err => console.error('Error al persistir el estado:', err));
+                .then(() => {
+                    if (window.mostrarNotificacion) {
+                        const clave = itemLocal ? itemLocal.clave_incidencia : `#${tareaId}`;
+                        const tipoNotif = nuevoEstado === 'Finalizado' ? 'success' : (nuevoEstado === 'Revision' ? 'warning' : 'info');
+                        window.mostrarNotificacion(
+                            `Incidencia ${clave} movida a "${nuevoEstado}".`,
+                            tipoNotif,
+                            'Estado Kanban Actualizado'
+                        );
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al persistir el estado:', err);
+                    if (window.mostrarNotificacion) {
+                        window.mostrarNotificacion('No se pudo actualizar el estado de la tarea.', 'danger', 'Error');
+                    }
+                });
             });
         });
     }

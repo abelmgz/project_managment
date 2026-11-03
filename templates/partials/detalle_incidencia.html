@@ -1,23 +1,23 @@
 <!-- templates/partials/detalle_incidencia.html -->
 <div class="modal fade" id="detalleIncidenciaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 6px;">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 1140px; width: 95vw;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 8px;">
             <form id="formDetalleIncidencia">
                 <input type="hidden" id="detalleTareaId">
-                <div class="modal-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                <div class="modal-header bg-light py-2 px-4 border-bottom d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fas fa-check-square text-primary"></i>
-                        <span class="fw-bold text-primary font-monospace" id="detalleClaveBadge" style="font-size: 0.88rem;">NET-101</span>
-                        <span class="text-muted" style="font-size: 0.8rem;">/</span>
-                        <span class="text-secondary fw-medium" style="font-size: 0.82rem;" id="detalleProyectoTexto">IT Network & Systems</span>
+                        <span class="fw-bold text-primary font-monospace" id="detalleClaveBadge" style="font-size: 0.92rem;">NET-101</span>
+                        <span class="text-muted" style="font-size: 0.82rem;">/</span>
+                        <span class="text-secondary fw-medium" style="font-size: 0.85rem;" id="detalleProyectoTexto">IT Network & Systems</span>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
                 </div>
 
-                <div class="modal-body p-4" style="font-size: 0.86rem; max-height: 75vh; overflow-y: auto;">
+                <div class="modal-body p-4" style="font-size: 0.87rem; max-height: 82vh; overflow-y: auto;">
                     <div class="row g-4">
                         <!-- Columna izquierda: Título, Descripción y Comentarios -->
-                        <div class="col-md-7">
+                        <div class="col-lg-7">
                             <div class="mb-3">
                                 <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Resumen / Título</label>
                                 <input type="text" id="detalleTitulo" class="form-control fw-semibold text-dark" required>
@@ -31,7 +31,7 @@
                             <div class="border-top pt-3 mt-2">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <label class="form-label fw-bold text-secondary m-0" style="font-size: 0.75rem; text-transform: uppercase;">
-                                        <i class="far fa-comments me-1 text-primary"></i> Comentarios de la Incidencia
+                                        <i class="far fa-comments me-1 text-primary"></i> Comentarios de la Incidencia (Más recientes primero)
                                     </label>
                                     <span class="badge bg-secondary rounded-pill" id="contadorComentariosModal" style="font-size: 0.68rem;">0</span>
                                 </div>
@@ -45,46 +45,67 @@
                                 </div>
 
                                 <!-- Lista de comentarios guardados en SQLite -->
-                                <div id="listaComentariosIncidencia" class="d-flex flex-column gap-2" style="max-height: 210px; overflow-y: auto;">
+                                <div id="listaComentariosIncidencia" class="d-flex flex-column gap-2" style="max-height: 240px; overflow-y: auto;">
                                     <!-- Renderizado dinámicamente -->
                                 </div>
                             </div>
                         </div>
 
                         <!-- Columna derecha: Metadatos de Jira e Historial de Cambios -->
-                        <div class="col-md-5 border-start ps-md-4">
-                            <div class="mb-2">
-                                <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Estado</label>
-                                <select id="detalleEstado" class="form-select form-select-sm fw-semibold">
-                                    <option value="Por-Hacer">POR HACER</option>
-                                    <option value="En-Curso">EN CURSO</option>
-                                    <option value="Revision">EN REVISIÓN</option>
-                                    <option value="Finalizado">FINALIZADO</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Prioridad</label>
-                                <select id="detallePrioridad" class="form-select form-select-sm">
-                                    <option value="Alta">Alta</option>
-                                    <option value="Media">Media</option>
-                                    <option value="Baja">Baja</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-2">
-                                <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Componente / Etiqueta</label>
-                                <input type="text" id="detalleComponente" class="form-control form-control-sm">
+                        <div class="col-lg-5 border-start ps-lg-4">
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.74rem; text-transform: uppercase;">Estado</label>
+                                    <select id="detalleEstado" class="form-select form-select-sm fw-semibold">
+                                        <option value="Por-Hacer">POR HACER</option>
+                                        <option value="En-Curso">EN CURSO</option>
+                                        <option value="Revision">EN REVISIÓN</option>
+                                        <option value="Finalizado">FINALIZADO</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.74rem; text-transform: uppercase;">Prioridad</label>
+                                    <select id="detallePrioridad" class="form-select form-select-sm">
+                                        <option value="Alta">Alta</option>
+                                        <option value="Media">Media</option>
+                                        <option value="Baja">Baja</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="row g-2 mb-2">
-                                <div class="col-6">
-                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Fecha Límite</label>
-                                    <input type="date" id="detalleFechaLimite" class="form-control form-control-sm">
+                                <div class="col-md-7">
+                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.74rem; text-transform: uppercase;">Componente / Etiqueta</label>
+                                    <input type="text" id="detalleComponente" class="form-control form-control-sm">
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Horas</label>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.74rem; text-transform: uppercase;">Horas (Weekly Logs)</label>
                                     <input type="number" id="detalleHoras" class="form-control form-control-sm" step="0.5" min="0">
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.72rem; text-transform: uppercase;">
+                                        <i class="far fa-calendar-check me-1 text-primary"></i>Fecha Inicio
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="date" id="detalleFechaInicio" class="form-control form-control-sm">
+                                        <button type="button" class="btn btn-outline-secondary btn-ir-hoy-fecha" data-target-input="detalleFechaInicio" title="Establecer en el día actual (Hoy)">
+                                            Hoy
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary mb-1" style="font-size: 0.72rem; text-transform: uppercase;">
+                                        <i class="far fa-calendar-alt me-1 text-danger"></i>Due Date
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="date" id="detalleFechaLimite" class="form-control form-control-sm">
+                                        <button type="button" class="btn btn-outline-primary btn-ir-hoy-fecha" data-target-input="detalleFechaLimite" title="Establecer en el día actual (Hoy)">
+                                            Hoy
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -102,7 +123,7 @@
                                     </label>
                                     <span class="badge bg-light text-secondary border" id="contadorHistorialModal" style="font-size: 0.68rem;">0</span>
                                 </div>
-                                <div id="listaHistorialIncidencia" class="d-flex flex-column gap-2" style="max-height: 175px; overflow-y: auto; font-size: 0.76rem;">
+                                <div id="listaHistorialIncidencia" class="d-flex flex-column gap-2" style="max-height: 185px; overflow-y: auto; font-size: 0.76rem;">
                                     <!-- Renderizado dinámicamente -->
                                 </div>
                             </div>
@@ -110,7 +131,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light border-top py-2 px-3 d-flex justify-content-between">
+                <div class="modal-footer bg-light border-top py-2 px-4 d-flex justify-content-between">
                     <div>
                         <button type="button" id="btnEliminarIncidenciaModal" class="btn btn-sm btn-outline-danger d-none" title="Privilegio exclusivo del rol Owner">
                             <i class="far fa-trash-alt me-1"></i> Eliminar Incidencia

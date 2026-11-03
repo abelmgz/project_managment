@@ -1,0 +1,159 @@
+<!-- templates/pages/proyectos.html -->
+{% extends "layouts/base.html" %}
+{% block title %}Administración de Proyectos - Jira Software{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="/static/css/pages/proyectos.css?v=9">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-2 py-1">
+    <!-- Encabezado Principal -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">
+                <i class="fas fa-folder-open text-primary me-2"></i>Administración de Proyectos
+            </h2>
+            <p class="text-muted m-0" style="font-size: 0.88rem;">
+                Gestiona el ciclo de vida de los proyectos. Solo los proyectos con estado <strong>"En proceso"</strong> se muestran en el selector de proyectos activo.
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-primary btn-sm px-3 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#crearProyectoModal">
+                <i class="fas fa-folder-plus me-1"></i> Nuevo Proyecto
+            </button>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Resumen de Proyectos por Estado -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="proyecto-kpi-card shadow-sm">
+                <div class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Total Proyectos</div>
+                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                    <span class="fs-3 fw-bold text-dark" id="kpiTotalProyectos">0</span>
+                    <span class="badge bg-light text-secondary border">Registrados</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="proyecto-kpi-card shadow-sm" style="border-left: 4px solid #198754;">
+                <div class="text-success fw-bold text-uppercase" style="font-size: 0.68rem;">En Proceso (Activos)</div>
+                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                    <span class="fs-3 fw-bold text-success" id="kpiProyectosEnProceso">0</span>
+                    <span class="badge badge-estado-en-proceso">Visibles en lista</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="proyecto-kpi-card shadow-sm" style="border-left: 4px solid #f59f00;">
+                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.68rem;">Planeación / En Pausa</div>
+                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                    <span class="fs-3 fw-bold text-dark" id="kpiProyectosPausados">0</span>
+                    <span class="badge badge-estado-en-pausa">Ocultos en selector</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="proyecto-kpi-card shadow-sm" style="border-left: 4px solid #6c757d;">
+                <div class="text-secondary fw-bold text-uppercase" style="font-size: 0.68rem;">Finalizados</div>
+                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                    <span class="fs-3 fw-bold text-secondary" id="kpiProyectosFinalizados">0</span>
+                    <span class="badge badge-estado-finalizado">Cerrados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Filtros por Estado y Búsqueda -->
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="btn-group btn-group-sm" role="group" id="grupoFiltroEstadoProyecto">
+                <button type="button" class="btn btn-outline-primary active fw-semibold" data-filtro-estado="TODOS">Todos</button>
+                <button type="button" class="btn btn-outline-primary fw-semibold" data-filtro-estado="En proceso">En proceso</button>
+                <button type="button" class="btn btn-outline-primary fw-semibold" data-filtro-estado="Planeación">Planeación</button>
+                <button type="button" class="btn btn-outline-primary fw-semibold" data-filtro-estado="En pausa">En pausa</button>
+                <button type="button" class="btn btn-outline-primary fw-semibold" data-filtro-estado="Finalizado">Finalizado</button>
+            </div>
+            <div class="input-group input-group-sm" style="max-width: 280px;">
+                <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" id="buscadorTablaProyectos" class="form-control" placeholder="Filtrar por nombre o clave...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Administración de Proyectos -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary fw-semibold text-uppercase" style="font-size: 0.74rem; letter-spacing: 0.4px;">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 110px;">Clave</th>
+                            <th class="py-3">Proyecto & Descripción</th>
+                            <th class="py-3" style="width: 195px;">Estado (Modificar)</th>
+                            <th class="py-3" style="width: 170px;">Visibilidad en Lista</th>
+                            <th class="py-3" style="width: 185px;">Avance & Tareas</th>
+                            <th class="py-3" style="width: 130px;">Creado</th>
+                            <th class="pe-4 py-3 text-end" style="width: 150px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaProyectos" style="font-size: 0.86rem;">
+                        <!-- Renderizado dinámicamente por proyectos.js -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Proyecto -->
+<div class="modal fade" id="modalEditarProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="formEditarProyecto">
+                <input type="hidden" id="editProyectoId">
+                <div class="modal-header bg-light py-2 px-3">
+                    <h6 class="modal-title fw-bold text-dark">
+                        <i class="fas fa-edit text-primary me-1"></i> Editar Proyecto
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-3" style="font-size: 0.86rem;">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Nombre del Proyecto *</label>
+                        <input type="text" id="editProyectoNombre" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-secondary">Clave (Key) *</label>
+                            <input type="text" id="editProyectoClave" class="form-control form-control-sm text-uppercase font-monospace" maxlength="8" required>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold text-secondary">Estado del Proyecto *</label>
+                            <select id="editProyectoEstado" class="form-select form-select-sm fw-semibold">
+                                <option value="En proceso">En proceso (Visible en lista)</option>
+                                <option value="Planeación">Planeación</option>
+                                <option value="En pausa">En pausa</option>
+                                <option value="Finalizado">Finalizado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold text-secondary">Descripción</label>
+                        <textarea id="editProyectoDescripcion" class="form-control form-control-sm" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2 px-3">
+                    <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-sm btn-primary px-3 fw-bold">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/pages/proyectos.js?v=12"></script>
+{% endblock %}

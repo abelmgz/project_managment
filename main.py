@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated, Optional
 from urllib.parse import urlparse
 
@@ -119,7 +119,8 @@ def inicializar_datos():
                     prioridad="Alta",
                     componente="Switching",
                     horas_registradas=3.5,
-                    fecha_limite=datetime(2026, 10, 7),
+                    fecha_inicio=datetime(2026, 11, 2),
+                    fecha_limite=datetime(2026, 11, 2),
                     proyecto_id=proyecto_principal.id,
                     asignado_id=usuario_owner.id,
                 ),
@@ -130,8 +131,9 @@ def inicializar_datos():
                     estado="Por-Hacer",
                     prioridad="Alta",
                     componente="VPN/Firewall",
-                    horas_registradas=0.0,
-                    fecha_limite=datetime(2026, 10, 19),
+                    horas_registradas=4.0,
+                    fecha_inicio=datetime(2026, 11, 2),
+                    fecha_limite=datetime(2026, 11, 4),
                     proyecto_id=proyecto_principal.id,
                     asignado_id=usuario_elena.id,
                 ),
@@ -143,7 +145,8 @@ def inicializar_datos():
                     prioridad="Media",
                     componente="Wi-Fi",
                     horas_registradas=2.0,
-                    fecha_limite=datetime(2026, 10, 26),
+                    fecha_inicio=datetime(2026, 11, 3),
+                    fecha_limite=datetime(2026, 11, 6),
                     proyecto_id=proyecto_principal.id,
                     asignado_id=usuario_tomas.id,
                 ),
@@ -155,7 +158,8 @@ def inicializar_datos():
                     prioridad="Baja",
                     componente="Inventario",
                     horas_registradas=3.0,
-                    fecha_limite=datetime(2026, 10, 20),
+                    fecha_inicio=datetime(2026, 10, 26),
+                    fecha_limite=datetime(2026, 10, 28),
                     proyecto_id=proyecto_principal.id,
                     asignado_id=usuario_admin.id,
                 ),
@@ -163,13 +167,14 @@ def inicializar_datos():
             db.add_all(semillas)
             db.commit()
         else:
-            # Distribuir las 4 tareas semilla entre los usuarios si todas estaban en el mismo id=1
+            # Distribuir las 4 tareas semilla entre los usuarios y ubicarlas en la semana actual / anterior
             fechas_y_asignados = {
-                "NET-101": (datetime(2026, 10, 7), usuario_owner.id),
-                "NET-102": (datetime(2026, 10, 19), usuario_elena.id),
-                "NET-103": (datetime(2026, 10, 26), usuario_tomas.id),
-                "NET-104": (datetime(2026, 10, 20), usuario_admin.id),
+                "NET-101": (datetime(2026, 11, 2), datetime(2026, 11, 2), usuario_owner.id, 3.5),
+                "NET-102": (datetime(2026, 11, 2), datetime(2026, 11, 4), usuario_elena.id, 4.0),
+                "NET-103": (datetime(2026, 11, 3), datetime(2026, 11, 6), usuario_tomas.id, 2.0),
+                "NET-104": (datetime(2026, 10, 26), datetime(2026, 10, 28), usuario_admin.id, 3.0),
             }
+            fechas_antiguas_oct = {"2026-10-07", "2026-10-16", "2026-10-19", "2026-10-20", "2026-10-26"}
             tareas_semilla = (
                 db.query(models.Tarea)
                 .filter(models.Tarea.clave_incidencia.in_(list(fechas_y_asignados.keys())))
@@ -178,12 +183,23 @@ def inicializar_datos():
             asignados_actuales = {t.asignado_id for t in tareas_semilla}
             actualizado = False
             for t in tareas_semilla:
-                fecha_def, asig_def = fechas_y_asignados[t.clave_incidencia]
-                if t.fecha_limite is None:
-                    t.fecha_limite = fecha_def
+                f_ini_def, f_due_def, asig_def, hrs_def = fechas_y_asignados[t.clave_incidencia]
+                due_actual_str = t.fecha_limite.strftime("%Y-%m-%d") if t.fecha_limite else ""
+                if t.fecha_limite is None or due_actual_str in fechas_antiguas_oct:
+                    t.fecha_inicio = f_ini_def
+                    t.fecha_limite = f_due_def
+                    if not t.horas_registradas:
+                        t.horas_registradas = hrs_def
+                    actualizado = True
+                if t.fecha_inicio is None or (t.fecha_limite and t.fecha_inicio > t.fecha_limite):
+                    t.fecha_inicio = f_ini_def
                     actualizado = True
                 if len(asignados_actuales) <= 1:
                     t.asignado_id = asig_def
+                    actualizado = True
+            for t_any in db.query(models.Tarea).all():
+                if t_any.fecha_inicio is None or (t_any.fecha_limite and t_any.fecha_inicio > t_any.fecha_limite):
+                    t_any.fecha_inicio = t_any.fecha_limite or datetime.now()
                     actualizado = True
             if actualizado:
                 db.commit()
@@ -422,7 +438,7 @@ def _serializar_comentarios_e_historial(db: Session, tarea_id: int) -> dict:
     comentarios_db = (
         db.query(models.Comentario)
         .filter(models.Comentario.tarea_id == tarea_id)
-        .order_by(models.Comentario.id.asc())
+        .order_by(models.Comentario.id.desc())
         .all()
     )
     historial_db = (
@@ -491,6 +507,11 @@ def pag_canvas(request: Request):
 @app.get("/usuarios", response_class=HTMLResponse)
 def pag_usuarios(request: Request):
     return templates.TemplateResponse("pages/usuarios.html", {"request": request, "pagina_activa": "usuarios"})
+
+
+@app.get("/proyectos", response_class=HTMLResponse)
+def pag_proyectos(request: Request):
+    return templates.TemplateResponse("pages/proyectos.html", {"request": request, "pagina_activa": "proyectos"})
 
 
 # --- ENDPOINTS DE ADMINISTRACIÓN DE USUARIOS, ROLES Y SESIÓN ---
@@ -649,61 +670,176 @@ def api_eliminar_usuario(id_usuario_eliminar: int, request: Request, db: DbSessi
 
 # --- ENDPOINTS DE PROYECTOS ---
 
+ESTADOS_PROYECTO_VALIDOS = ("En proceso", "Planeación", "En pausa", "Finalizado")
+
+
+def _serializar_proyecto(
+    p: models.Proyecto,
+    total_tareas: int = 0,
+    tareas_finalizadas: int = 0,
+    horas_totales: float = 0.0,
+) -> dict:
+    progreso = round((tareas_finalizadas / total_tareas) * 100) if total_tareas > 0 else 0
+    return {
+        "id": p.id,
+        "nombre": p.nombre,
+        "clave_proyecto": p.clave_proyecto,
+        "descripcion": p.descripcion or "",
+        "estado": p.estado or "En proceso",
+        "total_tareas": total_tareas,
+        "tareas_finalizadas": tareas_finalizadas,
+        "horas_totales": round(float(horas_totales or 0.0), 1),
+        "progreso_pct": progreso,
+        "fecha_creacion": _formatear_fecha_hora(p.fecha_creacion),
+    }
+
+
 @app.get("/api/proyectos")
-def api_listar_proyectos(db: DbSession):
-    proyectos = db.query(models.Proyecto).order_by(models.Proyecto.id.asc()).all()
-    conteos = dict(
-        db.query(models.Tarea.proyecto_id, func.count(models.Tarea.id))
+def api_listar_proyectos(
+    request: Request,
+    db: DbSession,
+    incluir_todos: bool = False,
+):
+    query = db.query(models.Proyecto)
+    if not incluir_todos:
+        query = query.filter(models.Proyecto.estado == "En proceso")
+    proyectos = query.order_by(models.Proyecto.id.asc()).all()
+
+    estadisticas = {}
+    filas_stats = (
+        db.query(
+            models.Tarea.proyecto_id,
+            func.count(models.Tarea.id),
+            func.sum(models.Tarea.horas_registradas),
+        )
         .group_by(models.Tarea.proyecto_id)
         .all()
     )
-    return [
-        {
-            "id": p.id,
-            "nombre": p.nombre,
-            "clave_proyecto": p.clave_proyecto,
-            "descripcion": p.descripcion or "",
-            "total_tareas": conteos.get(p.id, 0),
-        }
+    for pid, total_t, suma_h in filas_stats:
+        estadisticas[pid] = {"total": total_t or 0, "horas": float(suma_h or 0.0), "finalizadas": 0}
+
+    filas_fin = (
+        db.query(models.Tarea.proyecto_id, func.count(models.Tarea.id))
+        .filter(models.Tarea.estado == "Finalizado")
+        .group_by(models.Tarea.proyecto_id)
+        .all()
+    )
+    for pid, fin_t in filas_fin:
+        if pid in estadisticas:
+            estadisticas[pid]["finalizadas"] = fin_t or 0
+
+    lista = [
+        _serializar_proyecto(
+            p,
+            estadisticas.get(p.id, {}).get("total", 0),
+            estadisticas.get(p.id, {}).get("finalizadas", 0),
+            estadisticas.get(p.id, {}).get("horas", 0.0),
+        )
         for p in proyectos
     ]
 
+    if incluir_todos:
+        usuario_actual = _obtener_usuario_actual(request, db)
+        return {
+            "proyectos": lista,
+            "usuario_actual": _serializar_usuario(usuario_actual),
+            "estados_disponibles": list(ESTADOS_PROYECTO_VALIDOS),
+        }
+
+    return lista
+
 
 @app.post("/api/proyectos")
-async def crear_proyecto_form(
-    request: Request,
-    db: DbSession,
-    nombre: str = Form(...),
-    clave: str = Form(...),
-    descripcion: str = Form(None),
-):
-    clave_limpia = clave.strip().upper()
-    nombre_limpio = nombre.strip()
-    proyecto = db.query(models.Proyecto).filter(models.Proyecto.clave_proyecto == clave_limpia).first()
+async def crear_proyecto_form(request: Request, db: DbSession):
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        payload = await request.json()
+    else:
+        form = await request.form()
+        payload = dict(form)
+
+    nombre_limpio = str(payload.get("nombre") or "").strip()
+    clave_raw = str(payload.get("clave") or payload.get("clave_proyecto") or "").strip().upper()
+    descripcion = str(payload.get("descripcion") or "").strip()
+    estado = str(payload.get("estado") or "En proceso").strip()
+    if estado not in ESTADOS_PROYECTO_VALIDOS:
+        estado = "En proceso"
+
+    if not nombre_limpio or not clave_raw:
+        raise HTTPException(status_code=400, detail="Nombre y clave del proyecto son obligatorios")
+
+    proyecto = db.query(models.Proyecto).filter(models.Proyecto.clave_proyecto == clave_raw).first()
     if not proyecto:
         proyecto = models.Proyecto(
             nombre=nombre_limpio,
-            clave_proyecto=clave_limpia,
-            descripcion=(descripcion or "").strip(),
+            clave_proyecto=clave_raw,
+            descripcion=descripcion,
+            estado=estado,
         )
         db.add(proyecto)
         db.commit()
         db.refresh(proyecto)
 
-    if "application/json" in request.headers.get("accept", ""):
+    if "application/json" in request.headers.get("accept", "") or "application/json" in content_type:
         return JSONResponse(
             {
                 "status": "success",
-                "proyecto": {
-                    "id": proyecto.id,
-                    "nombre": proyecto.nombre,
-                    "clave_proyecto": proyecto.clave_proyecto,
-                    "descripcion": proyecto.descripcion or "",
-                },
+                "proyecto": _serializar_proyecto(proyecto),
             }
         )
 
     return RedirectResponse(url=_obtener_url_retorno(request, "/"), status_code=303)
+
+
+@app.put("/api/proyectos/{proyecto_id}")
+async def api_actualizar_proyecto(proyecto_id: int, request: Request, db: DbSession):
+    proy = db.query(models.Proyecto).filter(models.Proyecto.id == proyecto_id).first()
+    if not proy:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        payload = await request.json()
+    else:
+        form = await request.form()
+        payload = dict(form)
+
+    if "nombre" in payload and str(payload["nombre"]).strip():
+        proy.nombre = str(payload["nombre"]).strip()
+
+    if "clave_proyecto" in payload or "clave" in payload:
+        nueva_clave = str(payload.get("clave_proyecto") or payload.get("clave") or "").strip().upper()
+        if nueva_clave and nueva_clave != proy.clave_proyecto:
+            dup = (
+                db.query(models.Proyecto)
+                .filter(models.Proyecto.clave_proyecto == nueva_clave, models.Proyecto.id != proy.id)
+                .first()
+            )
+            if dup:
+                raise HTTPException(status_code=400, detail=f"La clave '{nueva_clave}' ya está en uso por otro proyecto.")
+            proy.clave_proyecto = nueva_clave
+
+    if "descripcion" in payload:
+        proy.descripcion = str(payload["descripcion"] or "").strip()
+
+    if "estado" in payload and str(payload["estado"]).strip() in ESTADOS_PROYECTO_VALIDOS:
+        proy.estado = str(payload["estado"]).strip()
+
+    db.commit()
+    db.refresh(proy)
+    total_t = db.query(models.Tarea).filter(models.Tarea.proyecto_id == proy.id).count()
+    fin_t = (
+        db.query(models.Tarea)
+        .filter(models.Tarea.proyecto_id == proy.id, models.Tarea.estado == "Finalizado")
+        .count()
+    )
+    horas_t = (
+        db.query(func.sum(models.Tarea.horas_registradas))
+        .filter(models.Tarea.proyecto_id == proy.id)
+        .scalar()
+        or 0.0
+    )
+    return {"status": "success", "proyecto": _serializar_proyecto(proy, total_t, fin_t, horas_t)}
 
 
 @app.delete("/api/proyectos/{proyecto_id}")
@@ -735,7 +871,9 @@ async def crear_tarea_form(
     estado: str = Form("Por-Hacer"),
     proyecto_id: Optional[str] = Form(None),
     asignado_id: Optional[str] = Form(None),
+    fecha_inicio: Optional[str] = Form(None),
     fecha_limite: Optional[str] = Form(None),
+    due_date: Optional[str] = Form(None),
     horas_registradas: Optional[float] = Form(0.0),
 ):
     usuario_actual = _obtener_usuario_actual(request, db)
@@ -763,7 +901,8 @@ async def crear_tarea_form(
         consecutivo += 1
         nueva_clave = f"{prefijo}-{consecutivo}"
 
-    fecha_obj = _parsear_fecha(fecha_limite) or datetime(2026, 10, 19)
+    fecha_inicio_obj = _parsear_fecha(fecha_inicio) or datetime.now()
+    fecha_due_obj = _parsear_fecha(fecha_limite or due_date) or fecha_inicio_obj
 
     nueva_t = models.Tarea(
         clave_incidencia=nueva_clave,
@@ -773,7 +912,8 @@ async def crear_tarea_form(
         prioridad=prioridad if prioridad in ("Alta", "Media", "Baja") else "Media",
         componente=componente.strip() if componente and componente.strip() else "General",
         horas_registradas=float(horas_registradas or 0.0),
-        fecha_limite=fecha_obj,
+        fecha_inicio=fecha_inicio_obj,
+        fecha_limite=fecha_due_obj,
         proyecto_id=proyecto.id if proyecto else 1,
         asignado_id=id_asignado_final,
     )
@@ -820,6 +960,8 @@ def api_reporte_carga(
     if proyecto_id:
         condiciones_tarea.append("t.proyecto_id = :proyecto_id")
         params["proyecto_id"] = proyecto_id
+    else:
+        condiciones_tarea.append("p.estado = 'En proceso'")
 
     join_extra = (" AND " + " AND ".join(condiciones_tarea)) if condiciones_tarea else ""
     where_usuario = ""
@@ -836,10 +978,47 @@ def api_reporte_carga(
                COALESCE(SUM(CASE WHEN t.estado = 'Revision' THEN 1 ELSE 0 END), 0) AS tareas_en_revision,
                COALESCE(SUM(CASE WHEN t.estado = 'Finalizado' THEN 1 ELSE 0 END), 0) AS tareas_completadas
         FROM usuarios u
-        LEFT JOIN tareas t ON u.id = t.asignado_id {join_extra}
+        LEFT JOIN tareas t ON u.id = t.asignado_id
+        LEFT JOIN proyectos p ON t.proyecto_id = p.id {join_extra}
         {where_usuario}
         GROUP BY u.id
     """)
+    return db.execute(query_sql, params).mappings().all()
+
+
+@app.get("/api/tareas/buscar")
+def api_buscar_tareas_global(
+    request: Request,
+    db: DbSession,
+    q: Optional[str] = None,
+    usuario_id: Optional[int] = None,
+):
+    """Busca incidencias en todos los proyectos sin tomar en cuenta el filtro de proyecto activo."""
+    usuario_actual = _obtener_usuario_actual(request, db, usuario_id)
+    filtros = []
+    params = {}
+
+    if usuario_actual and usuario_actual.rol == "Usuario":
+        filtros.append("asignado_id = :asignado_id")
+        params["asignado_id"] = usuario_actual.id
+
+    if q and q.strip():
+        filtros.append(
+            "(LOWER(clave_incidencia) LIKE :q "
+            "OR LOWER(titulo) LIKE :q "
+            "OR LOWER(COALESCE(descripcion, '')) LIKE :q "
+            "OR LOWER(COALESCE(componente, '')) LIKE :q "
+            "OR LOWER(COALESCE(proyecto_nombre, '')) LIKE :q "
+            "OR LOWER(COALESCE(proyecto_clave, '')) LIKE :q "
+            "OR LOWER(COALESCE(asignado_nombre, '')) LIKE :q)"
+        )
+        params["q"] = f"%{q.strip().lower()}%"
+
+    where_sql = ("WHERE " + " AND ".join(filtros)) if filtros else ""
+    query_sql = text(
+        f"SELECT * FROM vista_proyectos_tareas {where_sql} "
+        "ORDER BY CASE WHEN proyecto_estado = 'En proceso' THEN 0 ELSE 1 END, id DESC"
+    )
     return db.execute(query_sql, params).mappings().all()
 
 
@@ -850,19 +1029,36 @@ def api_listado_tareas(
     db: DbSession,
     proyecto_id: Optional[int] = None,
     usuario_id: Optional[int] = None,
+    q: Optional[str] = None,
+    sin_filtro_proyecto: bool = False,
 ):
     usuario_actual = _obtener_usuario_actual(request, db, usuario_id)
     filtros = []
     params = {}
 
-    if proyecto_id:
-        filtros.append("proyecto_id = :proyecto_id")
-        params["proyecto_id"] = proyecto_id
+    if not sin_filtro_proyecto:
+        if proyecto_id:
+            filtros.append("proyecto_id = :proyecto_id")
+            params["proyecto_id"] = proyecto_id
+        else:
+            filtros.append("proyecto_estado = 'En proceso'")
 
     # Si el usuario activo tiene rol 'Usuario', solo puede ver sus propias actividades
     if usuario_actual and usuario_actual.rol == "Usuario":
         filtros.append("asignado_id = :asignado_id")
         params["asignado_id"] = usuario_actual.id
+
+    if q and q.strip():
+        filtros.append(
+            "(LOWER(clave_incidencia) LIKE :q "
+            "OR LOWER(titulo) LIKE :q "
+            "OR LOWER(COALESCE(descripcion, '')) LIKE :q "
+            "OR LOWER(COALESCE(componente, '')) LIKE :q "
+            "OR LOWER(COALESCE(proyecto_nombre, '')) LIKE :q "
+            "OR LOWER(COALESCE(proyecto_clave, '')) LIKE :q "
+            "OR LOWER(COALESCE(asignado_nombre, '')) LIKE :q)"
+        )
+        params["q"] = f"%{q.strip().lower()}%"
 
     where_sql = ("WHERE " + " AND ".join(filtros)) if filtros else ""
     query_sql = text(f"SELECT * FROM vista_proyectos_tareas {where_sql}")
@@ -883,6 +1079,8 @@ def api_calendario_tareas(
     if proyecto_id:
         filtros.append("proyecto_id = :proyecto_id")
         params["proyecto_id"] = proyecto_id
+    else:
+        filtros.append("proyecto_estado = 'En proceso'")
 
     if usuario_actual and usuario_actual.rol == "Usuario":
         filtros.append("asignado_id = :asignado_id")
@@ -1011,13 +1209,23 @@ async def api_editar_tarea(tarea_id: int, request: Request, db: DbSession):
         except (TypeError, ValueError):
             pass
 
-    if "fecha_limite" in payload:
-        fecha_parseada = _parsear_fecha(str(payload["fecha_limite"] or ""))
+    if "fecha_inicio" in payload:
+        fecha_ini_parseada = _parsear_fecha(str(payload["fecha_inicio"] or ""))
+        if fecha_ini_parseada:
+            ant_ini = tarea.fecha_inicio.strftime("%Y-%m-%d") if tarea.fecha_inicio else "-"
+            nue_ini = fecha_ini_parseada.strftime("%Y-%m-%d")
+            if ant_ini != nue_ini:
+                db.add(models.HistorialTarea(tarea_id=tarea.id, campo_modificado="Fecha Inicio", valor_anterior=ant_ini, valor_nuevo=nue_ini))
+            tarea.fecha_inicio = fecha_ini_parseada
+
+    raw_due_date = payload.get("fecha_limite") if "fecha_limite" in payload else payload.get("due_date")
+    if raw_due_date is not None:
+        fecha_parseada = _parsear_fecha(str(raw_due_date or ""))
         if fecha_parseada:
             ant_str = tarea.fecha_limite.strftime("%Y-%m-%d") if tarea.fecha_limite else "-"
             nue_str = fecha_parseada.strftime("%Y-%m-%d")
             if ant_str != nue_str:
-                db.add(models.HistorialTarea(tarea_id=tarea.id, campo_modificado="Fecha Límite", valor_anterior=ant_str, valor_nuevo=nue_str))
+                db.add(models.HistorialTarea(tarea_id=tarea.id, campo_modificado="Due Date", valor_anterior=ant_str, valor_nuevo=nue_str))
             tarea.fecha_limite = fecha_parseada
 
     if "asignado_id" in payload and payload["asignado_id"] and usuario_actual and usuario_actual.rol in ("Owner", "Administrador"):

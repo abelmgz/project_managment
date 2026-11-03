@@ -23,8 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const subtituloProyectoEl = document.getElementById("canvasSubtituloProyecto");
 
     function obtenerProyectoSeleccionado() {
+        if (typeof window.obtenerProyectoActivoId === "function") {
+            return window.obtenerProyectoActivoId();
+        }
         const sel = document.getElementById("selectorProyectoGlobal");
-        return (sel && sel.value) ? sel.value : (localStorage.getItem("jira_proyecto_seleccionado") || "");
+        return (sel && sel.value) ? sel.value : (localStorage.getItem("jira_proyecto_activo_id") || "");
     }
 
     function escaparHtml(str) {
@@ -409,8 +412,18 @@ document.addEventListener("DOMContentLoaded", function () {
             if (fechaActualizacionEl) fechaActualizacionEl.textContent = documentoActivo.fecha_actualizacion;
             renderizarArbolPaginas();
             actualizarIndicadorEstado(crearVersion ? "Versión guardada" : "Auto-guardado", "fa-check-circle text-success");
+            if (crearVersion && window.mostrarNotificacion) {
+                window.mostrarNotificacion(
+                    `Se guardó la versión v${documentoActivo.version || 1} de "${documentoActivo.titulo}".`,
+                    "success",
+                    "Página Guardada"
+                );
+            }
         } else {
             actualizarIndicadorEstado("Error al guardar", "fa-exclamation-triangle text-danger");
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion("No se pudieron guardar los cambios de la página.", "danger", "Error");
+            }
         }
     }
 
@@ -435,6 +448,13 @@ document.addEventListener("DOMContentLoaded", function () {
             if (modalEl && window.bootstrap) {
                 const inst = bootstrap.Modal.getInstance(modalEl);
                 if (inst) inst.hide();
+            }
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(
+                    `Página "${nuevoDoc.titulo}" generada automáticamente con datos de Jira.`,
+                    "success",
+                    "Documento Automatizado"
+                );
             }
         }
     }
@@ -513,6 +533,9 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             hidratarMacrosYEnlacesEnVivo();
             guardarDocumentoActual(false, `Macro ${tipoMacro} insertada`);
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(`Macro en vivo (${tipoMacro.toUpperCase()}) insertada en el documento.`, "info", "Macro Insertada");
+            }
         });
     });
 
@@ -527,6 +550,9 @@ document.addEventListener("DOMContentLoaded", function () {
             selectInsertarIncidencia.value = "";
             hidratarMacrosYEnlacesEnVivo();
             guardarDocumentoActual(false, `Vinculada incidencia ${clave}`);
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(`Incidencia ${clave} vinculada al documento.`, "info", "Incidencia Vinculada");
+            }
         });
     }
 
@@ -551,6 +577,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const data = await res.json();
                 contextoVivo = data.contexto_vivo || contextoVivo;
                 mostrarDocumentoEnEditor(data.documento);
+                if (window.mostrarNotificacion) {
+                    window.mostrarNotificacion("Las macros y métricas del documento fueron sincronizadas con Jira.", "info", "Sincronización Completada");
+                }
             }
         });
     }
@@ -577,6 +606,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (tituloInput) {
                     tituloInput.focus();
                     tituloInput.select();
+                }
+                if (window.mostrarNotificacion) {
+                    window.mostrarNotificacion("Nueva página operativa creada en Confluence Canvas.", "success", "Página Creada");
                 }
             }
         });
@@ -647,6 +679,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     const inst = bootstrap.Modal.getInstance(modalEl);
                     if (inst) inst.hide();
                 }
+                if (window.mostrarNotificacion) {
+                    window.mostrarNotificacion("Se restauró la versión seleccionada del documento.", "warning", "Versión Restaurada");
+                }
             }
         });
     }
@@ -666,21 +701,37 @@ document.addEventListener("DOMContentLoaded", function () {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(`Archivo Markdown de "${documentoActivo.titulo}" descargado.`, "info", "Documento Exportado");
+            }
         });
     }
 
-    // Eliminar documento (Solo Owner)
+    // Eliminar documento con popup de advertencia (OK / Cancelar)
     if (btnEliminarDoc) {
         btnEliminarDoc.addEventListener("click", async function () {
             if (!documentoActivo) return;
-            if (!confirm(`¿Eliminar permanentemente la página "${documentoActivo.titulo}"?`)) return;
+            const tituloBorrar = documentoActivo.titulo || "esta página";
+            const confirmado = window.confirmarEliminacion
+                ? await window.confirmarEliminacion({
+                      titulo: "Advertencia: Borrar Página de Confluence",
+                      mensaje: `¿Estás seguro de que deseas borrar la página "${tituloBorrar}" y su historial de versiones?`,
+                  })
+                : confirm(`¿Eliminar permanentemente la página "${tituloBorrar}"?`);
+            if (!confirmado) return;
+
             const res = await fetch(`/api/canvas/${documentoActivo.id}`, { method: "DELETE" });
             if (res.ok) {
                 documentoActivo = null;
                 await cargarListaYContextoCanvas();
+                if (window.mostrarNotificacion) {
+                    window.mostrarNotificacion(`La página "${tituloBorrar}" fue eliminada permanentemente.`, "danger", "Página Eliminada");
+                }
             } else {
                 const err = await res.json().catch(() => ({}));
-                alert(err.detail || "No tienes permisos para eliminar páginas.");
+                if (window.mostrarNotificacion) {
+                    window.mostrarNotificacion(err.detail || "No tienes permisos para eliminar páginas.", "danger", "Acción Denegada");
+                }
             }
         });
     }
@@ -691,11 +742,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 hidratarMacrosYEnlacesEnVivo();
             }
             guardarDocumentoActual(false, "Cambio de configuración Auto-Sync");
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(
+                    switchAutoSync.checked ? "Auto-hidratación de macros en vivo activada." : "Auto-hidratación de macros pausada.",
+                    "info",
+                    "Configuración Canvas"
+                );
+            }
         });
     }
 
     // Escuchar cambio global de proyecto o de usuario en sesión
-    window.addEventListener("proyectoGlobalCambiado", function () {
+    window.addEventListener("proyectoCambiado", function () {
         cargarListaYContextoCanvas(documentoActivo ? documentoActivo.id : null);
     });
 

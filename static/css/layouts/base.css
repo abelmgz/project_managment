@@ -165,3 +165,235 @@ body {
 .sidebar-link.active .sidebar-icon {
     color: var(--blue-active);
 }
+
+
+/* Contenedor de Notificaciones Flotantes (Abajo a la Derecha) */
+.jira-toast-container {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    z-index: 1095;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 380px;
+    width: calc(100vw - 44px);
+    pointer-events: none;
+}
+
+.jira-toast-item {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(9, 30, 66, 0.18), 0 0 1px rgba(9, 30, 66, 0.31);
+    border-left: 5px solid #0052cc;
+    animation: jiraToastSlideIn 0.22s ease-out;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.jira-toast-item.toast-hiding {
+    opacity: 0;
+    transform: translateX(25px);
+}
+
+.jira-toast-item.toast-tipo-success {
+    border-left-color: #1f845a;
+    background-color: #f3fdf8;
+}
+
+.jira-toast-item.toast-tipo-info {
+    border-left-color: #0c66e4;
+    background-color: #f4f8ff;
+}
+
+.jira-toast-item.toast-tipo-warning {
+    border-left-color: #d97706;
+    background-color: #fffbeb;
+}
+
+.jira-toast-item.toast-tipo-danger {
+    border-left-color: #c9372c;
+    background-color: #fff5f5;
+}
+
+.jira-toast-icon {
+    font-size: 1.15rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+.toast-tipo-success .jira-toast-icon { color: #1f845a; }
+.toast-tipo-info .jira-toast-icon { color: #0c66e4; }
+.toast-tipo-warning .jira-toast-icon { color: #d97706; }
+.toast-tipo-danger .jira-toast-icon { color: #c9372c; }
+
+.jira-toast-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.jira-toast-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #172b4d;
+    margin-bottom: 2px;
+}
+
+.jira-toast-text {
+    font-size: 0.8rem;
+    color: #42526e;
+    line-height: 1.35;
+}
+
+.jira-toast-close {
+    background: transparent;
+    border: none;
+    color: #6b778c;
+    font-size: 0.8rem;
+    padding: 0;
+    cursor: pointer;
+}
+
+@keyframes jiraToastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* Dropdown de Autocompletado del Buscador Global de Incidencias */
+.jira-search-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 460px;
+    max-width: calc(100vw - 32px);
+    max-height: 430px;
+    overflow-y: auto;
+    background: #ffffff;
+    color: #172b4d;
+    border: 1px solid #dfe1e6;
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(9, 30, 66, 0.24), 0 0 1px rgba(9, 30, 66, 0.31);
+    z-index: 1095;
+}
+
+.jira-search-header {
+    padding: 8px 14px;
+    background: #f4f5f7;
+    border-bottom: 1px solid #dfe1e6;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #5e6c84;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.jira-search-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f1f4;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-left-color 0.12s ease;
+}
+
+.jira-search-item:last-child {
+    border-bottom: none;
+}
+
+.jira-search-item:hover,
+.jira-search-item.active {
+    background-color: #eef4ff;
+    border-left-color: #0052cc;
+}
+
+.jira-search-key {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #0052cc;
+    background: #deebff;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.jira-search-project-badge {
+    font-size: 0.71rem;
+    font-weight: 600;
+    color: #344563;
+    background: #ebecf0;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.jira-search-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #172b4d;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.jira-search-meta {
+    font-size: 0.73rem;
+    color: #6b778c;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.jira-search-highlight {
+    background-color: #fff0b3;
+    color: #172b4d;
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 700;
+}
+
+.jira-search-input {
+    border-radius: 4px;
+    padding: 6px 28px 6px 32px;
+    font-size: 0.84rem;
+    width: 260px;
+}
+.jira-search-input:focus {
+    width: 340px;
+    box-shadow: 0 0 0 2px rgba(76, 154, 255, 0.5);
+}
+.jira-search-input:focus::placeholder { color: #8993a4; }
+.jira-search-icon {
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+.jira-search-container:focus-within .jira-search-icon { color: #42526e; }
+.jira-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #6b778c;
+    font-size: 0.78rem;
+    padding: 2px 4px;
+    cursor: pointer;
+    line-height: 1;
+}
+.jira-search-clear:hover { color: #172b4d; }

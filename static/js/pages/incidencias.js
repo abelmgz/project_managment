@@ -17,13 +17,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         cuerpo.innerHTML = "";
         if (filtradas.length === 0) {
-            cuerpo.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay incidencias registradas para este proyecto</td></tr>';
+            cuerpo.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No hay incidencias registradas para este proyecto</td></tr>';
             return;
         }
 
         filtradas.forEach(t => {
             var asignadoNombre = t.asignado_nombre || 'Abel Martinez';
             var iniciales = asignadoNombre.trim().split(/\s+/).map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            var fechaIni = (t.fecha_inicio || t.fecha_creacion || '-').slice(0, 10);
+            var fechaDue = (t.due_date || t.fecha_limite || t.fecha_calendario || '-').slice(0, 10);
             var tr = document.createElement('tr');
             tr.style.cursor = 'pointer';
             tr.setAttribute('onclick', `window.abrirDetalleIncidencia(${t.id})`);
@@ -31,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="ps-4"><span class="fw-bold text-primary">${t.clave_incidencia}</span></td>
                 <td class="fw-medium text-dark">${t.titulo}</td>
                 <td><span class="text-secondary"><i class="fas fa-tag fa-xs me-1"></i>${t.componente || 'General'}</span></td>
+                <td><span class="badge bg-light text-dark border fw-normal"><i class="far fa-calendar-check text-primary me-1"></i>${fechaIni}</span></td>
+                <td><span class="badge bg-light text-danger border fw-semibold"><i class="far fa-calendar-alt me-1"></i>${fechaDue}</span></td>
                 <td><span class="badge-priority priority-${t.prioridad}">${t.prioridad}</span></td>
                 <td><span class="badge-status status-${t.estado}">${t.estado.toUpperCase()}</span></td>
                 <td>

@@ -30,13 +30,15 @@
                 <table class="table table-hover align-middle mb-0" id="tablaIncidencias">
                     <thead class="table-light text-secondary fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
                         <tr>
-                            <th class="ps-4 py-3" style="width: 120px;">Clave</th>
+                            <th class="ps-4 py-3" style="width: 110px;">Clave</th>
                             <th class="py-3">Resumen / Título</th>
-                            <th class="py-3" style="width: 160px;">Componente / Red</th>
-                            <th class="py-3" style="width: 130px;">Prioridad</th>
-                            <th class="py-3" style="width: 140px;">Estado</th>
-                            <th class="py-3" style="width: 180px;">Asignado</th>
-                            <th class="pe-4 py-3 text-end" style="width: 100px;">Acción</th>
+                            <th class="py-3" style="width: 145px;">Componente / Red</th>
+                            <th class="py-3" style="width: 115px;">Fecha Inicio</th>
+                            <th class="py-3" style="width: 120px;">Due Date</th>
+                            <th class="py-3" style="width: 110px;">Prioridad</th>
+                            <th class="py-3" style="width: 125px;">Estado</th>
+                            <th class="py-3" style="width: 165px;">Asignado</th>
+                            <th class="pe-4 py-3 text-end" style="width: 80px;">Acción</th>
                         </tr>
                     </thead>
                     <tbody class="border-top-0" id="contenedorListaIncidencias" style="font-size: 0.87rem;">
@@ -50,5 +52,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/pages/incidencias.js?v=5"></script>
+<script src="/static/js/pages/incidencias.js?v=8"></script>
 {% endblock %}

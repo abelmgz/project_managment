@@ -16,6 +16,15 @@
                         <label class="form-label fw-bold text-secondary">Clave / Key (Prefijo) *</label>
                         <input type="text" name="clave" class="form-control form-control-sm" required placeholder="Ej: GDL" maxlength="6">
                     </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold text-secondary">Estado Inicial *</label>
+                        <select name="estado" class="form-select form-select-sm fw-semibold">
+                            <option value="En proceso" selected>En proceso (Visible en lista activa)</option>
+                            <option value="Planeación">Planeación</option>
+                            <option value="En pausa">En pausa</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
                     <div class="mb-0">
                         <label class="form-label fw-bold text-secondary">Descripción</label>
                         <textarea name="descripcion" class="form-control form-control-sm" rows="2" placeholder="Descripción opcional..."></textarea>
